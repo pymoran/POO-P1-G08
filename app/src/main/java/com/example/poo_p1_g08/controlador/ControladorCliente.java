@@ -34,21 +34,25 @@ public class ControladorCliente extends AppCompatActivity {
         return "Cliente agregado satisfactoriamente";
 
     }
-    /*
-    public ClienteEmpresarial buscarClienteEmpresarial(String codigoEmpresa) {
+    public Cliente buscarClientePorId(String id, boolean soloTipoCliente) {
+        if (id == null) return null;
+        String idBuscado = id.trim();
+
         for (Persona p : lista) {
-            if (p instanceof ClienteEmpresarial) {
-                ClienteEmpresarial ce = (ClienteEmpresarial)p;
-                if (ce.getCodigoEmpresa().equalsIgnoreCase(codigoEmpresa)) {
-                    return ce;
+            if (p instanceof Cliente) {
+                Cliente c = (Cliente) p;
+                String idCliente = c.getId();
+                if (idCliente != null && idCliente.equalsIgnoreCase(idBuscado)) {
+                    if (!soloTipoCliente || c.getTipoCliente()) { // usa el nombre real de tu método aquí
+                        return c;
+                    } else {
+                        return null; // existe pero no es del tipo requerido
+                    }
                 }
             }
         }
         return null;
     }
-
-     */
-
 
     public Cliente buscarCliente(String id){
         for(Persona p: lista){
