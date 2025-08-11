@@ -14,6 +14,11 @@ import java.util.ArrayList;
 public class ControladorProveedor extends AppCompatActivity {
     private ArrayList<Persona> lista;
     private Button btnAgregarProveedor, btnRegresar;
+    
+    public ControladorProveedor() {
+        this.lista = new ArrayList<>();
+    }
+    
     public ControladorProveedor(ArrayList<Persona> lista){
         this.lista = lista;
     }
