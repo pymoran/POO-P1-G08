@@ -12,7 +12,7 @@ import com.example.poo_p1_g08.modelo.Tecnico;
 import java.util.ArrayList;
 public class ControladorTecnico extends AppCompatActivity {
     ArrayList<Persona> lista;
-    private Button btnAgregarTecnico;
+    private Button btnAgregarTecnico, btnRegresar;
 
     public ControladorTecnico(ArrayList<Persona> lista) {
         this.lista = lista;
@@ -69,9 +69,12 @@ public class ControladorTecnico extends AppCompatActivity {
         setContentView(R.layout.vistatecnico);
 
         btnAgregarTecnico = findViewById(R.id.btnAgregarTecnico);
+        btnRegresar = findViewById(R.id.btnRegresar);
 
 
         btnAgregarTecnico.setOnClickListener(v ->
                 Toast.makeText(this, "Aquí se agregaría un técnico", Toast.LENGTH_SHORT).show());
+
+        btnRegresar.setOnClickListener(v -> finish());
     }
 }

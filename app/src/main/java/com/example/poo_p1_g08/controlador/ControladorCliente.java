@@ -12,7 +12,7 @@ import com.example.poo_p1_g08.modelo.Persona;
 
 public class ControladorCliente extends AppCompatActivity {
     private ArrayList<Persona> lista;
-    private Button btnAgregarCliente;
+    private Button btnAgregarCliente, btnRegresar;
     public ControladorCliente(){
 
     }
@@ -76,11 +76,15 @@ public class ControladorCliente extends AppCompatActivity {
 
         // Vinculamos los botones del XML con Java
         btnAgregarCliente = findViewById(R.id.btnAgregarCliente);
+        btnRegresar = findViewById(R.id.btnRegresar);
 
         // Evento para agregar cliente
         btnAgregarCliente.setOnClickListener(v -> {
             Toast.makeText(this, "Aquí iría la lógica para agregar cliente", Toast.LENGTH_SHORT).show();
         });
+
+        // Botón regresar: vuelve al menú principal
+        btnRegresar.setOnClickListener(v -> finish());
     }
 
 

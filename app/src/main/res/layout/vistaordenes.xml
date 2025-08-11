@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textViewOrdenes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Órdenes de Servicio"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.02" />
+
+    <!-- Sección de lista de órdenes -->
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnCrearOrden"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewOrdenes">
+
+        <TextView
+            android:id="@+id/tvListaOrdenes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="Lista de órdenes aparecerá aquí..."
+            android:textSize="14sp" />
+
+    </ScrollView>
+
+    <!-- Sección de creación de orden (inicialmente oculta) -->
+    <ScrollView
+        android:id="@+id/scrollViewCrearOrden"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/btnGenerarOrden"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewOrdenes">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Título de la sección -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Crear Nueva Orden"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Campos de datos básicos -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Datos de la Orden:"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/etClienteId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="ID del Cliente (ej: C001)"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/etFecha"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Fecha (YYYY-MM-DD)"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/etPlaca"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Placa del Vehículo"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/etTipoVehiculo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Tipo (AUTOMOVIL/MOTOCICLETA/BUS)"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/etTecnicoId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="ID del Técnico (ej: T001)"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Sección de agregar servicios -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Agregar Servicios:"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <EditText
+                    android:id="@+id/etServicioCodigo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Código Servicio"
+                    android:layout_marginEnd="8dp" />
+
+                <EditText
+                    android:id="@+id/etCantidad"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Cantidad"
+                    android:inputType="number"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnAgregarServicio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Agregar Servicio"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Lista de servicios agregados -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Servicios Agregados:"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvServiciosAgregados"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#F5F5F5"
+                android:padding="8dp"
+                android:text="No hay servicios agregados"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Total -->
+            <TextView
+                android:id="@+id/tvTotal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total: $0.00"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:gravity="end"
+                android:layout_marginBottom="16dp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Botones -->
+    <Button
+        android:id="@+id/btnCrearOrden"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Crear Orden"
+        app:layout_constraintBottom_toTopOf="@+id/btnGenerarOrden"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_bias="0.9" />
+
+    <Button
+        android:id="@+id/btnGenerarOrden"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Generar Orden"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/btnRegresar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_bias="0.9" />
+
+    <Button
+        android:id="@+id/btnRegresar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Regresar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_bias="0.95" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -55,4 +55,37 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.401" />
 
+    <Button
+        android:id="@+id/btnServicios"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Administrar Servicios"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.53" />
+
+    <Button
+        android:id="@+id/btnOrdenes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Órdenes de Servicio"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.66" />
+
+    <Button
+        android:id="@+id/btnFacturas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Facturas a Empresas"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.79" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

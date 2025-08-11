@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class ControladorProveedor extends AppCompatActivity {
     private ArrayList<Persona> lista;
-    private Button btnAgregarProveedor;
+    private Button btnAgregarProveedor, btnRegresar;
     public ControladorProveedor(ArrayList<Persona> lista){
         this.lista = lista;
     }
@@ -46,9 +46,12 @@ public class ControladorProveedor extends AppCompatActivity {
         setContentView(R.layout.vistaproveedor);
 
         btnAgregarProveedor = findViewById(R.id.btnAgregarProveedor);
+        btnRegresar = findViewById(R.id.btnRegresar);
 
         btnAgregarProveedor.setOnClickListener(v ->
                 Toast.makeText(this, "Aquí se agregaría un proveedor", Toast.LENGTH_SHORT).show());
+
+        btnRegresar.setOnClickListener(v -> finish());
 
     }
 }

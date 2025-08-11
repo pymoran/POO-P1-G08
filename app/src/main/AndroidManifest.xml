@@ -12,6 +12,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.POOP1G08">
         <activity android:name=".controlador.ControladorCliente" />
+        <activity android:name=".controlador.ControladorProveedor" />
+        <activity android:name=".controlador.ControladorTecnico" />
+        <activity android:name=".controlador.ControladorServicio" />
+        <activity android:name=".controlador.ControladorOrden" />
+        <activity android:name=".controlador.ControladorFacturaEmpresa" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
