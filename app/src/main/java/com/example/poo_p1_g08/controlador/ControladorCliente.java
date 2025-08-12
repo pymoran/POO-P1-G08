@@ -43,10 +43,10 @@ public class ControladorCliente extends AppCompatActivity {
                 Cliente c = (Cliente) p;
                 String idCliente = c.getId();
                 if (idCliente != null && idCliente.equalsIgnoreCase(idBuscado)) {
-                    if (!soloTipoCliente || c.getTipoCliente()) {
+                    if (!soloTipoCliente || c.getTipoCliente()) { // usa el nombre real de tu método aquí
                         return c;
                     } else {
-                        return null;
+                        return null; // existe pero no es del tipo requerido
                     }
                 }
             }
@@ -69,7 +69,6 @@ public class ControladorCliente extends AppCompatActivity {
     public ArrayList<Persona> getListaCliente(){
         return lista;
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
