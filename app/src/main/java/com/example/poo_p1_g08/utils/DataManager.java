@@ -40,7 +40,6 @@ public class DataManager {
 
     /**
      * Inicializa la aplicación cargando datos desde archivos
-     * Si los archivos no existen, crea datos de ejemplo
      */
     public static void inicializarApp(Context context) {
         try {
