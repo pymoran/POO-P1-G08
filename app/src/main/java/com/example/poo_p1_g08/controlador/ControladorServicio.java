@@ -1,10 +1,12 @@
 package com.example.poo_p1_g08.controlador;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.poo_p1_g08.R;
 import com.example.poo_p1_g08.modelo.Servicio;
@@ -12,7 +14,10 @@ import java.util.ArrayList;
 
 public class ControladorServicio extends AppCompatActivity {
     private TextView tvListaServicios;
-    private Button btnAgregarServicio, btnEditarServicio, btnRegresar;
+    private Button btnAgregarServicio, btnEditarServicio, btnCrearServicio, btnActualizarServicio, btnRegresar;
+    private ScrollView scrollView, scrollViewAgregarServicio, scrollViewEditarServicio;
+    private EditText etNombreServicio, etPrecioServicio;
+    private EditText etCodigoServicioEditar, etNuevoPrecio;
     private ArrayList<Servicio> listaServicios;
 
     @Override
@@ -21,11 +26,8 @@ public class ControladorServicio extends AppCompatActivity {
         setContentView(R.layout.vistaservicios);
 
         // Inicializar componentes
-        tvListaServicios = findViewById(R.id.tvListaServicios);
-        btnAgregarServicio = findViewById(R.id.btnAgregarServicio);
-        btnEditarServicio = findViewById(R.id.btnEditarServicio);
-        btnRegresar = findViewById(R.id.btnRegresar);
-
+        inicializarComponentes();
+        
         // Inicializar datos de ejemplo
         inicializarDatos();
 
@@ -33,9 +35,202 @@ public class ControladorServicio extends AppCompatActivity {
         mostrarListaServicios();
 
         // Eventos de botones
-        btnAgregarServicio.setOnClickListener(v -> mostrarFormularioCrearServicio());
+        configurarEventos();
+    }
+
+    private void inicializarComponentes() {
+        // TextViews
+        tvListaServicios = findViewById(R.id.tvListaServicios);
+        
+        // Botones
+        btnAgregarServicio = findViewById(R.id.btnAgregarServicio);
+        btnEditarServicio = findViewById(R.id.btnEditarServicio);
+        btnCrearServicio = findViewById(R.id.btnCrearServicio);
+        btnActualizarServicio = findViewById(R.id.btnActualizarServicio);
+        btnRegresar = findViewById(R.id.btnRegresar);
+        
+        // ScrollViews
+        scrollView = findViewById(R.id.scrollView);
+        scrollViewAgregarServicio = findViewById(R.id.scrollViewAgregarServicio);
+        scrollViewEditarServicio = findViewById(R.id.scrollViewEditarServicio);
+        
+        // EditTexts para agregar servicio
+        etNombreServicio = findViewById(R.id.etNombreServicio);
+        etPrecioServicio = findViewById(R.id.etPrecioServicio);
+        
+        // EditTexts para editar servicio
+        etCodigoServicioEditar = findViewById(R.id.etCodigoServicioEditar);
+        etNuevoPrecio = findViewById(R.id.etNuevoPrecio);
+    }
+
+    private void configurarEventos() {
+        btnAgregarServicio.setOnClickListener(v -> mostrarFormularioAgregarServicio());
         btnEditarServicio.setOnClickListener(v -> mostrarFormularioEditarServicio());
+        btnCrearServicio.setOnClickListener(v -> crearServicio());
+        btnActualizarServicio.setOnClickListener(v -> actualizarServicio());
         btnRegresar.setOnClickListener(v -> finish());
+    }
+
+    private void mostrarFormularioAgregarServicio() {
+        // Ocultar lista y mostrar formulario de agregar
+        scrollView.setVisibility(View.GONE);
+        scrollViewAgregarServicio.setVisibility(View.VISIBLE);
+        scrollViewEditarServicio.setVisibility(View.GONE);
+        
+        btnAgregarServicio.setVisibility(View.GONE);
+        btnEditarServicio.setVisibility(View.GONE);
+        btnCrearServicio.setVisibility(View.VISIBLE);
+        btnActualizarServicio.setVisibility(View.GONE);
+        
+        // Limpiar campos
+        limpiarCamposAgregar();
+    }
+
+    private void mostrarFormularioEditarServicio() {
+        // Ocultar lista y mostrar formulario de editar
+        scrollView.setVisibility(View.GONE);
+        scrollViewAgregarServicio.setVisibility(View.GONE);
+        scrollViewEditarServicio.setVisibility(View.VISIBLE);
+        
+        btnAgregarServicio.setVisibility(View.GONE);
+        btnEditarServicio.setVisibility(View.GONE);
+        btnCrearServicio.setVisibility(View.GONE);
+        btnActualizarServicio.setVisibility(View.VISIBLE);
+        
+        // Limpiar campos
+        limpiarCamposEditar();
+    }
+
+    private void crearServicio() {
+        // Validar campos
+        if (!validarCamposAgregar()) {
+            return;
+        }
+
+        try {
+            String nombre = etNombreServicio.getText().toString().trim();
+            double precio = Double.parseDouble(etPrecioServicio.getText().toString().trim());
+
+            // Generar código automáticamente
+            String codigo = generarCodigoServicio();
+
+            // Simular creación de servicio
+            String mensaje = String.format("Servicio creado exitosamente:\n\n" +
+                    "Código: %s\n" +
+                    "Nombre: %s\n" +
+                    "Precio: $%.2f", 
+                    codigo, nombre, precio);
+
+            Toast.makeText(this, "Servicio creado", Toast.LENGTH_LONG).show();
+            
+            // Regresar a la vista de lista
+            regresarALista();
+            
+        } catch (Exception e) {
+            Toast.makeText(this, "Error al crear el servicio", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void actualizarServicio() {
+        // Validar campos
+        if (!validarCamposEditar()) {
+            return;
+        }
+
+        try {
+            String codigo = etCodigoServicioEditar.getText().toString().trim();
+            double nuevoPrecio = Double.parseDouble(etNuevoPrecio.getText().toString().trim());
+
+            // Simular actualización de servicio
+            String mensaje = String.format("Servicio actualizado exitosamente:\n\n" +
+                    "Código: %s\n" +
+                    "Nuevo Precio: $%.2f", 
+                    codigo, nuevoPrecio);
+
+            Toast.makeText(this, "Servicio actualizado", Toast.LENGTH_LONG).show();
+            
+            // Regresar a la vista de lista
+            regresarALista();
+            
+        } catch (Exception e) {
+            Toast.makeText(this, "Error al actualizar el servicio", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String generarCodigoServicio() {
+        // Generar código automáticamente basado en la cantidad de servicios existentes
+        int siguienteNumero = listaServicios.size() + 1;
+        return String.format("S%03d", siguienteNumero);
+    }
+
+    private boolean validarCamposAgregar() {
+        if (etNombreServicio.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el nombre del servicio", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (etPrecioServicio.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el precio del servicio", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        try {
+            double precio = Double.parseDouble(etPrecioServicio.getText().toString().trim());
+            if (precio <= 0) {
+                Toast.makeText(this, "El precio debe ser mayor a 0", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Ingrese un precio válido", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validarCamposEditar() {
+        if (etCodigoServicioEditar.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el código del servicio a editar", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (etNuevoPrecio.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el nuevo precio", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        try {
+            double precio = Double.parseDouble(etNuevoPrecio.getText().toString().trim());
+            if (precio <= 0) {
+                Toast.makeText(this, "El precio debe ser mayor a 0", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Ingrese un precio válido", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private void limpiarCamposAgregar() {
+        etNombreServicio.setText("");
+        etPrecioServicio.setText("");
+    }
+
+    private void limpiarCamposEditar() {
+        etCodigoServicioEditar.setText("");
+        etNuevoPrecio.setText("");
+    }
+
+    private void regresarALista() {
+        // Mostrar lista y ocultar formularios
+        scrollView.setVisibility(View.VISIBLE);
+        scrollViewAgregarServicio.setVisibility(View.GONE);
+        scrollViewEditarServicio.setVisibility(View.GONE);
+        
+        // Mostrar botones principales
+        btnAgregarServicio.setVisibility(View.VISIBLE);
+        btnEditarServicio.setVisibility(View.VISIBLE);
+        btnCrearServicio.setVisibility(View.GONE);
+        btnActualizarServicio.setVisibility(View.GONE);
+        
+        // Actualizar lista
+        mostrarListaServicios();
     }
 
     // Método para mostrar la lista de servicios en el TextView
@@ -58,112 +253,6 @@ public class ControladorServicio extends AppCompatActivity {
         tvListaServicios.setText(sb.toString());
     }
 
-    // Formulario para crear nuevo servicio
-    private void mostrarFormularioCrearServicio() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Crear Nuevo Servicio");
-
-        // Crear vista con campos del formulario
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(50, 20, 50, 20);
-
-        // Campo para código del servicio
-        android.widget.EditText etCodigo = new android.widget.EditText(this);
-        etCodigo.setHint("Código del Servicio (ej: S007)");
-        layout.addView(etCodigo);
-
-        // Campo para nombre del servicio
-        android.widget.EditText etNombre = new android.widget.EditText(this);
-        etNombre.setHint("Nombre del Servicio");
-        layout.addView(etNombre);
-
-        // Campo para precio del servicio
-        android.widget.EditText etPrecio = new android.widget.EditText(this);
-        etPrecio.setHint("Precio ($)");
-        etPrecio.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        layout.addView(etPrecio);
-
-        builder.setView(layout);
-
-        builder.setPositiveButton("Crear", (dialog, which) -> {
-            String codigo = etCodigo.getText().toString().trim();
-            String nombre = etNombre.getText().toString().trim();
-            String precioStr = etPrecio.getText().toString().trim();
-            
-            if (codigo.isEmpty() || nombre.isEmpty() || precioStr.isEmpty()) {
-                Toast.makeText(this, "Complete todos los campos", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            try {
-                double precio = Double.parseDouble(precioStr);
-                
-                // Mostrar mensaje de confirmación
-                String mensaje = String.format("Servicio solicitado:\nCódigo: %s\nNombre: %s\nPrecio: $%.2f\n\n(Implementación futura)", 
-                                             codigo, nombre, precio);
-                tvListaServicios.setText(mensaje);
-                Toast.makeText(this, "Servicio solicitado", Toast.LENGTH_SHORT).show();
-                
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Precio debe ser un número válido", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        builder.setNegativeButton("Cancelar", null);
-        builder.show();
-    }
-
-    // Formulario para editar servicio existente
-    private void mostrarFormularioEditarServicio() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Editar Servicio Existente");
-
-        // Crear vista con campos del formulario
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(50, 20, 50, 20);
-
-        // Campo para código del servicio a editar
-        android.widget.EditText etCodigoEditar = new android.widget.EditText(this);
-        etCodigoEditar.setHint("Código del Servicio a Editar (ej: S001)");
-        layout.addView(etCodigoEditar);
-
-        // Campo para nuevo precio
-        android.widget.EditText etNuevoPrecio = new android.widget.EditText(this);
-        etNuevoPrecio.setHint("Nuevo Precio ($)");
-        etNuevoPrecio.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        layout.addView(etNuevoPrecio);
-
-        builder.setView(layout);
-
-        builder.setPositiveButton("Actualizar", (dialog, which) -> {
-            String codigo = etCodigoEditar.getText().toString().trim();
-            String precioStr = etNuevoPrecio.getText().toString().trim();
-            
-            if (codigo.isEmpty() || precioStr.isEmpty()) {
-                Toast.makeText(this, "Complete todos los campos", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            try {
-                double precio = Double.parseDouble(precioStr);
-                
-                // Mostrar mensaje de confirmación
-                String mensaje = String.format("Actualización solicitada:\nCódigo: %s\nNuevo Precio: $%.2f\n\n(Implementación futura)", 
-                                             codigo, precio);
-                tvListaServicios.setText(mensaje);
-                Toast.makeText(this, "Actualización solicitada", Toast.LENGTH_SHORT).show();
-                
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Precio debe ser un número válido", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        builder.setNegativeButton("Cancelar", null);
-        builder.show();
-    }
-
     // Inicializar datos de ejemplo
     private void inicializarDatos() {
         listaServicios = new ArrayList<>();
@@ -175,3 +264,4 @@ public class ControladorServicio extends AppCompatActivity {
         listaServicios.add(new Servicio("S006", "Limpieza", 30.00));
     }
 }
+

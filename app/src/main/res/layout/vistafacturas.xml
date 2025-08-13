@@ -15,8 +15,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.05" />
+        app:layout_constraintVertical_bias="0.02" />
 
+    <!-- Sección de lista de facturas -->
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
@@ -38,11 +39,95 @@
 
     </ScrollView>
 
+    <!-- Sección de generación de factura (inicialmente oculta) -->
+    <ScrollView
+        android:id="@+id/scrollViewGenerarFactura"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/btnCrearFactura"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewFacturas">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Título de la sección -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Generar Nueva Factura"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Campos de datos básicos -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Datos de la Factura:"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/etClienteEmpresaId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="ID del Cliente Empresarial (ej: C003)"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/etMes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Mes (1-12)"
+                android:inputType="number"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/etAño"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Año (ej: 2024)"
+                android:inputType="number"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Información adicional -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nota: La factura se generará automáticamente con todos los servicios del mes seleccionado."
+                android:textStyle="italic"
+                android:textColor="#666666"
+                android:layout_marginBottom="16dp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Botones -->
     <Button
         android:id="@+id/btnGenerarFactura"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:text="Generar Factura"
+        app:layout_constraintBottom_toTopOf="@+id/btnCrearFactura"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnCrearFactura"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Generar Factura"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/btnRegresar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

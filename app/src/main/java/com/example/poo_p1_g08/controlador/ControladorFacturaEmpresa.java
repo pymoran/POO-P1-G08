@@ -1,10 +1,12 @@
 package com.example.poo_p1_g08.controlador;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.poo_p1_g08.R;
 import com.example.poo_p1_g08.modelo.Cliente;
@@ -15,7 +17,9 @@ import java.util.ArrayList;
 public class ControladorFacturaEmpresa extends AppCompatActivity {
     private ArrayList<FacturaEmpresa> listaFacturas;
     private TextView tvListaFacturas;
-    private Button btnGenerarFactura, btnRegresar;
+    private Button btnGenerarFactura, btnCrearFactura, btnRegresar;
+    private ScrollView scrollView, scrollViewGenerarFactura;
+    private EditText etClienteEmpresaId, etMes, etAño;
     
     // Listas de datos de ejemplo
     private ArrayList<Persona> clientes;
@@ -26,10 +30,8 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
         setContentView(R.layout.vistafacturas);
 
         // Inicializar componentes
-        tvListaFacturas = findViewById(R.id.tvListaFacturas);
-        btnGenerarFactura = findViewById(R.id.btnGenerarFactura);
-        btnRegresar = findViewById(R.id.btnRegresar);
-
+        inicializarComponentes();
+        
         // Inicializar datos de ejemplo
         inicializarDatos();
 
@@ -37,8 +39,119 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
         mostrarListaFacturas();
 
         // Eventos de botones
-        btnGenerarFactura.setOnClickListener(v -> mostrarMensajeGenerarFactura());
+        configurarEventos();
+    }
+
+    private void inicializarComponentes() {
+        // TextViews
+        tvListaFacturas = findViewById(R.id.tvListaFacturas);
+        
+        // Botones
+        btnGenerarFactura = findViewById(R.id.btnGenerarFactura);
+        btnCrearFactura = findViewById(R.id.btnCrearFactura);
+        btnRegresar = findViewById(R.id.btnRegresar);
+        
+        // ScrollViews
+        scrollView = findViewById(R.id.scrollView);
+        scrollViewGenerarFactura = findViewById(R.id.scrollViewGenerarFactura);
+        
+        // EditTexts
+        etClienteEmpresaId = findViewById(R.id.etClienteEmpresaId);
+        etMes = findViewById(R.id.etMes);
+        etAño = findViewById(R.id.etAño);
+    }
+
+    private void configurarEventos() {
+        btnGenerarFactura.setOnClickListener(v -> mostrarFormularioFactura());
+        btnCrearFactura.setOnClickListener(v -> generarFactura());
         btnRegresar.setOnClickListener(v -> finish());
+    }
+
+    private void mostrarFormularioFactura() {
+        // Ocultar lista y mostrar formulario
+        scrollView.setVisibility(View.GONE);
+        scrollViewGenerarFactura.setVisibility(View.VISIBLE);
+        btnGenerarFactura.setVisibility(View.GONE);
+        btnCrearFactura.setVisibility(View.VISIBLE);
+        
+        // Limpiar campos
+        limpiarCampos();
+    }
+
+    private void generarFactura() {
+        // Validar campos
+        if (!validarCampos()) {
+            return;
+        }
+
+        try {
+            String clienteId = etClienteEmpresaId.getText().toString().trim();
+            int mes = Integer.parseInt(etMes.getText().toString().trim());
+            int año = Integer.parseInt(etAño.getText().toString().trim());
+
+            // Validar mes
+            if (mes < 1 || mes > 12) {
+                Toast.makeText(this, "Mes debe estar entre 1 y 12", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Validar año
+            if (año < 2020 || año > 2030) {
+                Toast.makeText(this, "Año debe estar entre 2020 y 2030", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Simular generación de factura
+            String mensaje = String.format("Factura generada exitosamente:\n\n" +
+                    "Cliente: %s\n" +
+                    "Mes: %d\n" +
+                    "Año: %d\n\n" +
+                    "La factura incluye todos los servicios del mes seleccionado.", 
+                    clienteId, mes, año);
+
+            Toast.makeText(this, "Factura generada", Toast.LENGTH_LONG).show();
+            
+            // Regresar a la vista de lista
+            regresarALista();
+            
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Mes y año deben ser números válidos", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Error al generar la factura", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean validarCampos() {
+        if (etClienteEmpresaId.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el ID del cliente", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (etMes.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el mes", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (etAño.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el año", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private void limpiarCampos() {
+        etClienteEmpresaId.setText("");
+        etMes.setText("");
+        etAño.setText("");
+    }
+
+    private void regresarALista() {
+        // Mostrar lista y ocultar formulario
+        scrollView.setVisibility(View.VISIBLE);
+        scrollViewGenerarFactura.setVisibility(View.GONE);
+        btnGenerarFactura.setVisibility(View.VISIBLE);
+        btnCrearFactura.setVisibility(View.GONE);
+        
+        // Actualizar lista
+        mostrarListaFacturas();
     }
 
     // Método para mostrar la lista de facturas en el TextView
@@ -61,69 +174,6 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
         }
         
         tvListaFacturas.setText(sb.toString());
-    }
-
-    // Diálogo para mostrar campos de generación de factura
-    private void mostrarMensajeGenerarFactura() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Generar Factura Mensual");
-
-        // Crear vista con campos visuales
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(50, 20, 50, 20);
-
-        // Campo para ID de la empresa
-        android.widget.EditText etEmpresaId = new android.widget.EditText(this);
-        etEmpresaId.setHint("ID de la Empresa (ej: C003)");
-        layout.addView(etEmpresaId);
-
-        // Campo para mes
-        android.widget.EditText etMes = new android.widget.EditText(this);
-        etMes.setHint("Mes (1-12)");
-        etMes.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        layout.addView(etMes);
-
-        // Campo para año
-        android.widget.EditText etAño = new android.widget.EditText(this);
-        etAño.setHint("Año (ej: 2024)");
-        etAño.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        layout.addView(etAño);
-
-        builder.setView(layout);
-
-        builder.setPositiveButton("Generar", (dialog, which) -> {
-            String empresaId = etEmpresaId.getText().toString().trim();
-            String mesStr = etMes.getText().toString().trim();
-            String añoStr = etAño.getText().toString().trim();
-            
-            if (empresaId.isEmpty() || mesStr.isEmpty() || añoStr.isEmpty()) {
-                Toast.makeText(this, "Complete todos los campos", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            try {
-                int mes = Integer.parseInt(mesStr);
-                int año = Integer.parseInt(añoStr);
-                
-                if (mes < 1 || mes > 12) {
-                    Toast.makeText(this, "Mes debe estar entre 1 y 12", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // Mostrar mensaje de confirmación
-                String mensaje = String.format("Factura solicitada para:\nEmpresa: %s\nMes: %d\nAño: %d\n\n(Implementación futura)", 
-                                             empresaId, mes, año);
-                tvListaFacturas.setText(mensaje);
-                Toast.makeText(this, "Solicitud recibida", Toast.LENGTH_SHORT).show();
-                
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Mes y año deben ser números", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        builder.setNegativeButton("Cancelar", null);
-        builder.show();
     }
 
     // Inicializar datos de ejemplo
