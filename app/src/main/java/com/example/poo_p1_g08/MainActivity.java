@@ -62,12 +62,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Abrir vista reporte de ingresos por servicios
-        btnServicios.setOnClickListener(v -> {
+        btnReporteServicios.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, ReporteServicioActivity.class));
         });
 
         // Abrir vista reporte de ateciones por tecnicos
-        btnTecnicos.setOnClickListener(v -> {
+        btnReporteTecnicos.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, ReporteTecnicoActivity.class));
         });
     }
