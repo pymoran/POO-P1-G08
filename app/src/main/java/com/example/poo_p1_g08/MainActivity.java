@@ -31,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
         btnServicios = findViewById(R.id.btnServicios);
         btnOrdenes = findViewById(R.id.btnOrdenes);
         btnFacturas = findViewById(R.id.btnFacturas);
+        btnReporteServicios = findViewById(R.id.btnReporteServicios);
+        btnReporteTecnicos = findViewById(R.id.btnReporteTecnicos);
 
         btnCliente.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, ControladorCliente.class));
@@ -57,6 +59,16 @@ public class MainActivity extends AppCompatActivity {
         // Abrir vista de facturas
         btnFacturas.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, ControladorFacturaEmpresa.class));
+        });
+
+        // Abrir vista reporte de ingresos por servicios
+        btnServicios.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, ReporteServicioActivity.class));
+        });
+
+        // Abrir vista reporte de ateciones por tecnicos
+        btnTecnicos.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, ReporteTecnicoActivity.class));
         });
     }
 
