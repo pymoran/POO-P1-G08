@@ -10,14 +10,14 @@ public class OrdenServicio {
     private String codigo;
     private Cliente cliente;
     private Vehiculo vehiculo;
-    private LocalDate fecha;
+    private String fecha;
     private ArrayList<DetalledelServicio>detalle;
     private double total;
     private Tecnico tecnico;
 
 
 
-    public OrdenServicio(Cliente cliente, Vehiculo vehiculo,Tecnico tecnico, LocalDate fecha) {
+    public OrdenServicio(Cliente cliente, Vehiculo vehiculo,Tecnico tecnico, String fecha) {
         this.codigo = generarCodigo();
         this.cliente = cliente;
         this.vehiculo = vehiculo;
@@ -49,7 +49,7 @@ public class OrdenServicio {
         return vehiculo;
     }
 
-    public LocalDate getFecha() {
+    public String getFecha() {
         return fecha;
     }
 

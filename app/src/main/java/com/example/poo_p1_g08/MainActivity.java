@@ -15,7 +15,7 @@ import com.example.poo_p1_g08.controlador.ControladorTecnico;
 import com.example.poo_p1_g08.utils.DataManager;
 
 public class MainActivity extends AppCompatActivity {
-    private Button btnCliente,btnProveedor,btnTecnico, btnServicios, btnOrdenes, btnFacturas;
+    private Button btnCliente,btnProveedor,btnTecnico, btnServicios, btnOrdenes, btnFacturas,btnReporteServicios,btnReporteTecnicos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

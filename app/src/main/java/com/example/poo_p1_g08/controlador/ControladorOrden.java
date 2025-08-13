@@ -113,7 +113,7 @@ public class ControladorOrden extends AppCompatActivity {
         Cliente cliente1 = (Cliente) clientes.get(0);
         Tecnico tecnico1 = (Tecnico) tecnicos.get(0);
         Vehiculo vehiculo1 = new Vehiculo("ABC-123", Vehiculo.TipoVehiculo.AUTOMOVIL);
-        OrdenServicio orden1 = new OrdenServicio(cliente1, vehiculo1, tecnico1, LocalDate.now());
+        OrdenServicio orden1 = new OrdenServicio(cliente1, vehiculo1, tecnico1, "2024-12-15");
         orden1.agregarDetalle(servicios.get(0), 1); // Cambio de aceite
         orden1.agregarDetalle(servicios.get(1), 1); // Frenos
         lista.add(orden1);
@@ -122,21 +122,21 @@ public class ControladorOrden extends AppCompatActivity {
         Cliente cliente2 = (Cliente) clientes.get(1);
         Tecnico tecnico2 = (Tecnico) tecnicos.get(1);
         Vehiculo vehiculo2 = new Vehiculo("XYZ-789", Vehiculo.TipoVehiculo.MOTOCICLETA);
-        OrdenServicio orden2 = new OrdenServicio(cliente2, vehiculo2, tecnico2, LocalDate.now().minusDays(1));
+        OrdenServicio orden2 = new OrdenServicio(cliente2, vehiculo2, tecnico2, "2024-12-14");
         orden2.agregarDetalle(servicios.get(2), 1); // Suspensión
         lista.add(orden2);
 
         // Orden 3
         Cliente cliente3 = (Cliente) clientes.get(2);
         Vehiculo vehiculo3 = new Vehiculo("DEF-456", Vehiculo.TipoVehiculo.BUS);
-        OrdenServicio orden3 = new OrdenServicio(cliente3, vehiculo3, tecnico1, LocalDate.now().minusDays(2));
+        OrdenServicio orden3 = new OrdenServicio(cliente3, vehiculo3, tecnico1, "2024-12-13");
         orden3.agregarDetalle(servicios.get(3), 2); // Electricidad x2
         orden3.agregarDetalle(servicios.get(0), 1); // Cambio de aceite
         lista.add(orden3);
 
         // Orden 4
         Vehiculo vehiculo4 = new Vehiculo("GHI-789", Vehiculo.TipoVehiculo.AUTOMOVIL);
-        OrdenServicio orden4 = new OrdenServicio(cliente1, vehiculo4, tecnico2, LocalDate.now().minusDays(3));
+        OrdenServicio orden4 = new OrdenServicio(cliente1, vehiculo4, tecnico2, "2024-12-12");
         orden4.agregarDetalle(servicios.get(1), 1); // Frenos
         orden4.agregarDetalle(servicios.get(2), 1); // Suspensión
         orden4.agregarDetalle(servicios.get(3), 1); // Electricidad
