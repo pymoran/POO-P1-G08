@@ -142,4 +142,5 @@ public class ControladorOrden extends AppCompatActivity {
         orden4.agregarDetalle(servicios.get(3), 1); // Electricidad
         lista.add(orden4);
     }
+
 }

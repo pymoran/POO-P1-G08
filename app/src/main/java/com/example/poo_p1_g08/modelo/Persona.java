@@ -37,6 +37,6 @@ public class Persona {
 
     @Override
     public String toString() {
-        return String.format("%-10s | %-15s | %-12s", id, nombre, telefono);
+        return String.format("%-11s | %-15s | %-12s", id, nombre, telefono);
     }
 }

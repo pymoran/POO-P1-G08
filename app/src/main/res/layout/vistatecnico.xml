@@ -1,40 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:padding="16dp">
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Lista de Tecnicos"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.037" />
+	<TextView
+		android:id="@+id/textViewTecnico"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Técnico"
+		android:textSize="20sp"
+		android:textStyle="bold"
+		android:layout_gravity="center"
+		android:layout_marginBottom="16dp" />
 
-    <Button
-        android:id="@+id/btnAgregarTecnico"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="AgregarTecnico"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.099" />
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
+		android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btnRegresar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Regresar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.95" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+		<TextView
+			android:id="@+id/tvListaTecnicos"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="Lista de Técnicos:"
+			android:textSize="16sp"
+			android:textStyle="bold"
+			android:layout_marginBottom="8dp" />
+
+		<ScrollView
+			android:id="@+id/scrollViewListaTecnicos"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			android:layout_marginBottom="16dp">
+
+			<TextView
+				android:id="@+id/tvTecnicos"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="Cargando técnicos..."
+				android:textSize="14sp" />
+
+		</ScrollView>
+
+		<ScrollView
+			android:id="@+id/scrollViewTecnico"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			android:visibility="gone">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="vertical">
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Datos del Nuevo Técnico"
+					android:textSize="18sp"
+					android:textStyle="bold"
+					android:layout_gravity="center"
+					android:layout_marginBottom="16dp" />
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="ID del Técnico"
+					android:textSize="14sp" />
+
+				<EditText
+					android:id="@+id/etIdTecnico"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:inputType="text"
+					android:layout_marginBottom="8dp" />
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Nombre del Técnico"
+					android:textSize="14sp" />
+
+				<EditText
+					android:id="@+id/etNombreTecnico"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:inputType="textPersonName"
+					android:layout_marginBottom="8dp" />
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Teléfono"
+					android:textSize="14sp" />
+
+				<EditText
+					android:id="@+id/etTelefonoTecnico"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:inputType="phone"
+					android:layout_marginBottom="8dp" />
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Especialidad"
+					android:textSize="14sp" />
+
+				<EditText
+					android:id="@+id/etEspecialidadTecnico"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:inputType="text"
+					android:layout_marginBottom="8dp" />
+
+				<Button
+					android:id="@+id/btnGuardarTecnico"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:text="Guardar Técnico" />
+
+			</LinearLayout>
+		</ScrollView>
+
+	</LinearLayout>
+
+	<Button
+		android:id="@+id/btnAgregarTecnico"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="Agregar Técnico"
+		android:layout_marginBottom="8dp" />
+
+	<Button
+		android:id="@+id/btnRegresar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="Regresar" />
+
+</LinearLayout>

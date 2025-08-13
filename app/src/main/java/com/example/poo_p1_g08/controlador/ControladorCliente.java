@@ -154,7 +154,7 @@ public class ControladorCliente extends AppCompatActivity {
                 sb.append(String.format("Nombre: %s\n", c.getNombre()));
                 sb.append(String.format("Teléfono: %s\n", c.getTelefono()));
                 sb.append(String.format("Dirección: %s\n", c.getDireccion()));
-                sb.append(String.format("Tipo: %s\n", c.getTipoCliente() ? "Empresarial" : "Individual"));
+                sb.append(String.format("Tipo: %s\n", c.getTipoCliente() ? "Empresarial" : "Normal"));
                 sb.append("------------------------\n");
             }
         }
@@ -206,7 +206,7 @@ public class ControladorCliente extends AppCompatActivity {
             scrollViewListaClientes.setVisibility(View.VISIBLE);
             btnAgregarCliente.setVisibility(View.VISIBLE);
             limpiarCampos();
-            mostrarListaClientes(); // Actualizar la lista
+            mostrarListaClientes();
         }
     }
 }

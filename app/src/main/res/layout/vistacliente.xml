@@ -132,19 +132,19 @@
                     android:layout_marginBottom="16dp"
                     android:orientation="horizontal">
 
-                    <RadioButton
-                        android:id="@+id/rbClienteIndividual"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Individual"
-                        android:checked="true"
-                        android:layout_marginEnd="16dp" />
+                                    <RadioButton
+                    android:id="@+id/rbClienteIndividual"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Normal"
+                    android:checked="true"
+                    android:layout_marginEnd="16dp" />
 
-                    <RadioButton
-                        android:id="@+id/rbClienteEmpresarial"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Empresarial" />
+                <RadioButton
+                    android:id="@+id/rbClienteEmpresarial"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Empresarial" />
                 </RadioGroup>
 
                 <Button
