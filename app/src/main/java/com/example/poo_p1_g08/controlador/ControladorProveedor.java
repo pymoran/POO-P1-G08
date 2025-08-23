@@ -5,43 +5,41 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.os.Bundle;
-import java.util.ArrayList;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.poo_p1_g08.R;
-import com.example.poo_p1_g08.modelo.Persona;
 import com.example.poo_p1_g08.modelo.Proveedor;
+import com.example.poo_p1_g08.utils.DataManager;
+
+import java.util.List;
 
 public class ControladorProveedor extends AppCompatActivity {
-    private ArrayList<Persona> lista;
     private Button btnAgregarProveedor, btnRegresar, btnGuardarProveedor;
     private ScrollView scrollViewProveedor, scrollViewListaProveedores;
     private EditText etIdProveedor, etNombreProveedor, etTelefonoProveedor, etDescripcionProveedor;
     private TextView tvProveedores;
     
     public ControladorProveedor() {
-        // esto es para el oncreate
-    }
-    
-    public ControladorProveedor(ArrayList<Persona> lista){
-        this.lista = lista;
+        // Constructor vacío
     }
 
     public String agregarProveedor(Proveedor proveedor){
-        for(Persona p : lista){
-            if(p instanceof Proveedor){
-                Proveedor i = (Proveedor)p;
-                if(i.getId().equalsIgnoreCase(proveedor.getId())){
-                    return ">>Proveedor ya existente intente nuevamente";
-                }
-            }
+        // Verificar si ya existe
+        Proveedor existente = DataManager.buscarProveedorPorId(this, proveedor.getId());
+        if (existente != null) {
+            return ">>Proveedor ya existente intente nuevamente";
         }
-        lista.add(proveedor);
-        return "Proveedor agregado satisfactoriamente";
+        
+        // Guardar en archivo
+        if (DataManager.guardarProveedor(this, proveedor)) {
+            return "Proveedor agregado satisfactoriamente";
+        } else {
+            return "Error al guardar proveedor";
+        }
     }
 
-    public ArrayList<Persona> getListaProveedores(){
-        return lista;
+    public List<Proveedor> getListaProveedores(){
+        return DataManager.obtenerTodosLosProveedores(this);
     }
 
     public boolean crearOrden(){
@@ -53,17 +51,12 @@ public class ControladorProveedor extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vistaproveedor);
 
-
-        lista = new ArrayList<>();
-        lista.add(new Proveedor("1204684450", "Repuestos Eléctricos R.E", "0991111111", "Suministro de repuestos y accesorios para vehículos"));
-        lista.add(new Proveedor("1204684451", "Autopartes García", "0992222222", "Venta de autopartes y repuestos automotrices"));
-        lista.add(new Proveedor("1204684452", "Mecánica Industrial", "0993333333", "Servicios de mecánica y repuestos industriales"));
-
+        // Inicializar la aplicación si es necesario
+        DataManager.inicializarApp(this);
 
         inicializar();
         mostrarListaProveedores();
     }
-
 
     private void inicializar() {
         btnAgregarProveedor = findViewById(R.id.btnAgregarProveedor);
@@ -85,7 +78,9 @@ public class ControladorProveedor extends AppCompatActivity {
     }
     
     private void mostrarListaProveedores() {
-        if (lista == null || lista.isEmpty()) {
+        List<Proveedor> proveedores = DataManager.obtenerTodosLosProveedores(this);
+        
+        if (proveedores == null || proveedores.isEmpty()) {
             tvProveedores.setText("No hay proveedores registrados");
             return;
         }
@@ -93,15 +88,12 @@ public class ControladorProveedor extends AppCompatActivity {
         StringBuilder sb = new StringBuilder();
         sb.append("PROVEEDORES REGISTRADOS:\n\n");
         
-        for (Persona p : lista) {
-            if (p instanceof Proveedor) {
-                Proveedor prov = (Proveedor) p;
-                sb.append(String.format("ID: %s\n", prov.getId()));
-                sb.append(String.format("Nombre: %s\n", prov.getNombre()));
-                sb.append(String.format("Teléfono: %s\n", prov.getTelefono()));
-                sb.append(String.format("Descripción: %s\n", prov.getDescripcion()));
-                sb.append("------------------------\n");
-            }
+        for (Proveedor prov : proveedores) {
+            sb.append(String.format("ID: %s\n", prov.getId()));
+            sb.append(String.format("Nombre: %s\n", prov.getNombre()));
+            sb.append(String.format("Teléfono: %s\n", prov.getTelefono()));
+            sb.append(String.format("Descripción: %s\n", prov.getDescripcion()));
+            sb.append("------------------------\n");
         }
         
         String textoFinal = sb.toString();

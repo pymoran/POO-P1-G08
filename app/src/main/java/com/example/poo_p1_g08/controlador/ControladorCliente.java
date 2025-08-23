@@ -7,16 +7,15 @@ import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.os.Bundle;
-import java.util.ArrayList;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.poo_p1_g08.R;
 import com.example.poo_p1_g08.modelo.Cliente;
-import com.example.poo_p1_g08.modelo.Persona;
+import com.example.poo_p1_g08.utils.DataManager;
 
+import java.util.List;
 
 public class ControladorCliente extends AppCompatActivity {
-    private ArrayList<Persona> lista;
     private Button btnAgregarCliente, btnRegresar, btnGuardarCliente;
     private ScrollView scrollViewCliente, scrollViewListaClientes;
     private EditText etIdCliente, etNombreCliente, etTelefonoCliente, etDireccionCliente;
@@ -25,84 +24,56 @@ public class ControladorCliente extends AppCompatActivity {
     private TextView tvClientes;
     
     public ControladorCliente(){
-
-    }
-    public ControladorCliente(ArrayList<Persona> lista){ // Se recibe la lista
-        this.lista = lista; // Se asigna la lista recibida
+        // Constructor vacío
     }
 
     public String agregarCliente(Cliente CLnuevo){
-        for(Persona p : lista){
-            if(p instanceof Cliente){
-                Cliente c = (Cliente)p;
-                if(c.getId().equalsIgnoreCase(CLnuevo.getId())){
-                    return ">>Cliente ya existente intente nuevamente";
-                }
-            }
+        // Verificar si ya existe
+        Cliente existente = DataManager.buscarClientePorId(this, CLnuevo.getId());
+        if (existente != null) {
+            return ">>Cliente ya existente intente nuevamente";
         }
-        lista.add(CLnuevo);
-        return "Cliente agregado satisfactoriamente";
-
+        
+        // Guardar en archivo
+        if (DataManager.guardarCliente(this, CLnuevo)) {
+            return "Cliente agregado satisfactoriamente";
+        } else {
+            return "Error al guardar cliente";
+        }
     }
+    
     public Cliente buscarClientePorId(String id, boolean soloTipoCliente) {
         if (id == null) return null;
         String idBuscado = id.trim();
 
-        for (Persona p : lista) {
-            if (p instanceof Cliente) {
-                Cliente c = (Cliente) p;
-                String idCliente = c.getId();
-                if (idCliente != null && idCliente.equalsIgnoreCase(idBuscado)) {
-                    if (!soloTipoCliente || c.getTipoCliente()) { // usa el nombre real de tu método aquí
-                        return c;
-                    } else {
-                        return null; // existe pero no es del tipo requerido
-                    }
-                }
-            }
+        if (soloTipoCliente) {
+            return DataManager.buscarClienteEmpresarialPorId(this, idBuscado);
+        } else {
+            return DataManager.buscarClientePorId(this, idBuscado);
         }
-        return null;
     }
 
     public Cliente buscarCliente(String id){
-        for(Persona p: lista){
-            if(p instanceof Cliente){
-                Cliente c = (Cliente)p;
-                if(id.equalsIgnoreCase(c.getId())){
-                    return c;
-                }
-            }
-        }
-        return null;
+        return DataManager.buscarClientePorId(this, id);
     }
 
-    public ArrayList<Persona> getListaCliente(){
-        return lista;
+    public List<Cliente> getListaCliente(){
+        return DataManager.obtenerTodosLosClientes(this);
     }
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.vistacliente); // Aquí conectamos con el XML
+        setContentView(R.layout.vistacliente);
 
-        // Inicializar la lista si es null
-        if (lista == null) {
-            lista = new ArrayList<>();
-            inicializarClientesEjemplo();
-        }
+        // Inicializar la aplicación si es necesario
+        DataManager.inicializarApp(this);
 
         // Vinculamos los elementos del XML con Java y configuramos eventos
         inicializar();
         
         // Mostrar lista de clientes
         mostrarListaClientes();
-    }
-    
-    private void inicializarClientesEjemplo() {
-        // Clientes de ejemplo tomados de ControladorOrden
-        lista.add(new Cliente("C001", "Carlos Ruiz", "0991111111", "Av. Principal 123", false));
-        lista.add(new Cliente("C002", "Ana García", "0992222222", "Calle Secundaria 456", false));
-        lista.add(new Cliente("C003", "Empresa ABC", "0993333333", "Zona Industrial 789", true));
     }
     
     private void inicializar() {
@@ -140,23 +111,22 @@ public class ControladorCliente extends AppCompatActivity {
     }
     
     private void mostrarListaClientes() {
-        if (lista == null || lista.isEmpty()) {
+        List<Cliente> clientes = DataManager.obtenerTodosLosClientes(this);
+        
+        if (clientes == null || clientes.isEmpty()) {
             tvClientes.setText("No hay clientes registrados");
             return;
         }
 
         StringBuilder sb = new StringBuilder();
         
-        for (Persona p : lista) {
-            if (p instanceof Cliente) {
-                Cliente c = (Cliente) p;
-                sb.append(String.format("ID: %s\n", c.getId()));
-                sb.append(String.format("Nombre: %s\n", c.getNombre()));
-                sb.append(String.format("Teléfono: %s\n", c.getTelefono()));
-                sb.append(String.format("Dirección: %s\n", c.getDireccion()));
-                sb.append(String.format("Tipo: %s\n", c.getTipoCliente() ? "Empresarial" : "Normal"));
-                sb.append("------------------------\n");
-            }
+        for (Cliente c : clientes) {
+            sb.append(String.format("ID: %s\n", c.getId()));
+            sb.append(String.format("Nombre: %s\n", c.getNombre()));
+            sb.append(String.format("Teléfono: %s\n", c.getTelefono()));
+            sb.append(String.format("Dirección: %s\n", c.getDireccion()));
+            sb.append(String.format("Tipo: %s\n", c.getTipoCliente() ? "Empresarial" : "Normal"));
+            sb.append("------------------------\n");
         }
         
         String textoFinal = sb.toString();

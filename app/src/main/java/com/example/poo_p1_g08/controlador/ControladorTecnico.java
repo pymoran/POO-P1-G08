@@ -10,41 +10,38 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.poo_p1_g08.R;
-import com.example.poo_p1_g08.modelo.Persona;
 import com.example.poo_p1_g08.modelo.Tecnico;
+import com.example.poo_p1_g08.utils.DataManager;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class ControladorTecnico extends AppCompatActivity {
-	private ArrayList<Persona> lista;
 	private Button btnAgregarTecnico, btnRegresar, btnGuardarTecnico;
 	private ScrollView scrollViewTecnico, scrollViewListaTecnicos;
 	private EditText etIdTecnico, etNombreTecnico, etTelefonoTecnico, etEspecialidadTecnico;
 	private TextView tvTecnicos;
 
 	public ControladorTecnico() {
-		// onCreate inicializa la lista
-	}
-
-	public ControladorTecnico(ArrayList<Persona> lista){
-		this.lista = lista;
+		// Constructor vacío
 	}
 
 	public String agregarTecnico(Tecnico tecnico){
-		for(Persona p : lista){
-			if(p instanceof Tecnico){
-				Tecnico t = (Tecnico) p;
-				if(t.getId().equalsIgnoreCase(tecnico.getId())){
-					return ">>Técnico ya existente intente nuevamente";
-				}
-			}
+		// Verificar si ya existe
+		Tecnico existente = DataManager.buscarTecnicoPorId(this, tecnico.getId());
+		if (existente != null) {
+			return ">>Técnico ya existente intente nuevamente";
 		}
-		lista.add(tecnico);
-		return "Técnico agregado satisfactoriamente";
+		
+		// Guardar en archivo
+		if (DataManager.guardarTecnico(this, tecnico)) {
+			return "Técnico agregado satisfactoriamente";
+		} else {
+			return "Error al guardar técnico";
+		}
 	}
 
-	public ArrayList<Persona> getListaTecnicos(){
-		return lista;
+	public List<Tecnico> getListaTecnicos(){
+		return DataManager.obtenerTodosLosTecnicos(this);
 	}
 
 	@Override
@@ -52,11 +49,8 @@ public class ControladorTecnico extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.vistatecnico);
 
-		// Inicializar lista con 3 técnicos de ejemplo
-		lista = new ArrayList<>();
-		lista.add(new Tecnico("T001", "Juan Pérez", "0991234567", "Motor"));
-		lista.add(new Tecnico("T002", "María López", "0997654321", "Electricidad"));
-		lista.add(new Tecnico("T003", "Pedro Gómez", "0995554443", "Suspensión"));
+		// Inicializar la aplicación si es necesario
+		DataManager.inicializarApp(this);
 
 		inicializar();
 		mostrarListaTecnicos();
@@ -83,23 +77,21 @@ public class ControladorTecnico extends AppCompatActivity {
 	}
 
 	private void mostrarListaTecnicos() {
-		if (lista == null || lista.isEmpty()) {
+		List<Tecnico> tecnicos = DataManager.obtenerTodosLosTecnicos(this);
+		
+		if (tecnicos == null || tecnicos.isEmpty()) {
 			tvTecnicos.setText("No hay técnicos registrados");
 			return;
 		}
 
 		StringBuilder sb = new StringBuilder();
 
-
-		for (Persona p : lista) {
-			if (p instanceof Tecnico) {
-				Tecnico t = (Tecnico) p;
-				sb.append(String.format("ID: %s\n", t.getId()));
-				sb.append(String.format("Nombre: %s\n", t.getNombre()));
-				sb.append(String.format("Teléfono: %s\n", t.getTelefono()));
-				sb.append(String.format("Especialidad: %s\n", t.getEspecialidad()));
-				sb.append("----------------------------\n");
-			}
+		for (Tecnico t : tecnicos) {
+			sb.append(String.format("ID: %s\n", t.getId()));
+			sb.append(String.format("Nombre: %s\n", t.getNombre()));
+			sb.append(String.format("Teléfono: %s\n", t.getTelefono()));
+			sb.append(String.format("Especialidad: %s\n", t.getEspecialidad()));
+			sb.append("----------------------------\n");
 		}
 
 		tvTecnicos.setText(sb.toString());

@@ -10,7 +10,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.poo_p1_g08.R;
 import com.example.poo_p1_g08.modelo.Servicio;
-import java.util.ArrayList;
+import com.example.poo_p1_g08.utils.DataManager;
+import java.util.List;
 
 public class ControladorServicio extends AppCompatActivity {
     private TextView tvListaServicios;
@@ -18,18 +19,17 @@ public class ControladorServicio extends AppCompatActivity {
     private ScrollView scrollView, scrollViewAgregarServicio, scrollViewEditarServicio;
     private EditText etNombreServicio, etPrecioServicio;
     private EditText etCodigoServicioEditar, etNuevoPrecio;
-    private ArrayList<Servicio> listaServicios;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vistaservicios);
 
+        // Inicializar la aplicación si es necesario
+        DataManager.inicializarApp(this);
+
         // Inicializar componentes
         inicializarComponentes();
-        
-        // Inicializar datos de ejemplo
-        inicializarDatos();
 
         // Mostrar lista inicial
         mostrarListaServicios();
@@ -61,6 +61,9 @@ public class ControladorServicio extends AppCompatActivity {
         // EditTexts para editar servicio
         etCodigoServicioEditar = findViewById(R.id.etCodigoServicioEditar);
         etNuevoPrecio = findViewById(R.id.etNuevoPrecio);
+        
+        // Cambiar el texto del botón de editar
+        btnEditarServicio.setText("Editar Precio");
     }
 
     private void configurarEventos() {
@@ -114,17 +117,14 @@ public class ControladorServicio extends AppCompatActivity {
             // Generar código automáticamente
             String codigo = generarCodigoServicio();
 
-            // Simular creación de servicio
-            String mensaje = String.format("Servicio creado exitosamente:\n\n" +
-                    "Código: %s\n" +
-                    "Nombre: %s\n" +
-                    "Precio: $%.2f", 
-                    codigo, nombre, precio);
-
-            Toast.makeText(this, "Servicio creado", Toast.LENGTH_LONG).show();
-            
-            // Regresar a la vista de lista
-            regresarALista();
+            // Crear y guardar el servicio
+            Servicio nuevoServicio = new Servicio(codigo, nombre, precio);
+            if (DataManager.guardarServicio(this, nuevoServicio)) {
+                Toast.makeText(this, "Servicio creado exitosamente", Toast.LENGTH_LONG).show();
+                regresarALista();
+            } else {
+                Toast.makeText(this, "Error al crear el servicio", Toast.LENGTH_SHORT).show();
+            }
             
         } catch (Exception e) {
             Toast.makeText(this, "Error al crear el servicio", Toast.LENGTH_SHORT).show();
@@ -141,16 +141,22 @@ public class ControladorServicio extends AppCompatActivity {
             String codigo = etCodigoServicioEditar.getText().toString().trim();
             double nuevoPrecio = Double.parseDouble(etNuevoPrecio.getText().toString().trim());
 
-            // Simular actualización de servicio
-            String mensaje = String.format("Servicio actualizado exitosamente:\n\n" +
-                    "Código: %s\n" +
-                    "Nuevo Precio: $%.2f", 
-                    codigo, nuevoPrecio);
-
-            Toast.makeText(this, "Servicio actualizado", Toast.LENGTH_LONG).show();
-            
-            // Regresar a la vista de lista
-            regresarALista();
+            // Buscar el servicio y actualizarlo
+            Servicio servicio = DataManager.buscarServicioPorCodigo(this, codigo);
+            if (servicio != null) {
+                // Actualizar el precio del servicio
+                servicio.setPrecio(nuevoPrecio);
+                
+                // Guardar el servicio actualizado en el archivo
+                if (DataManager.actualizarServicio(this, servicio)) {
+                    Toast.makeText(this, "Precio actualizado exitosamente", Toast.LENGTH_LONG).show();
+                    regresarALista();
+                } else {
+                    Toast.makeText(this, "Error al guardar el precio actualizado", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Servicio no encontrado", Toast.LENGTH_SHORT).show();
+            }
             
         } catch (Exception e) {
             Toast.makeText(this, "Error al actualizar el servicio", Toast.LENGTH_SHORT).show();
@@ -159,7 +165,8 @@ public class ControladorServicio extends AppCompatActivity {
 
     private String generarCodigoServicio() {
         // Generar código automáticamente basado en la cantidad de servicios existentes
-        int siguienteNumero = listaServicios.size() + 1;
+        List<Servicio> servicios = DataManager.obtenerTodosLosServicios(this);
+        int siguienteNumero = servicios.size() + 1;
         return String.format("S%03d", siguienteNumero);
     }
 
@@ -235,7 +242,9 @@ public class ControladorServicio extends AppCompatActivity {
 
     // Método para mostrar la lista de servicios en el TextView
     private void mostrarListaServicios() {
-        if (listaServicios == null || listaServicios.isEmpty()) {
+        List<Servicio> servicios = DataManager.obtenerTodosLosServicios(this);
+        
+        if (servicios == null || servicios.isEmpty()) {
             tvListaServicios.setText("No hay servicios registrados");
             return;
         }
@@ -243,7 +252,7 @@ public class ControladorServicio extends AppCompatActivity {
         StringBuilder sb = new StringBuilder();
         sb.append("LISTA DE SERVICIOS:\n\n");
         
-        for (Servicio servicio : listaServicios) {
+        for (Servicio servicio : servicios) {
             sb.append(String.format("Código: %s\n", servicio.getCodigo()));
             sb.append(String.format("Nombre: %s\n", servicio.getNombre()));
             sb.append(String.format("Precio: $%.2f\n", servicio.getPrecio()));
@@ -251,17 +260,6 @@ public class ControladorServicio extends AppCompatActivity {
         }
         
         tvListaServicios.setText(sb.toString());
-    }
-
-    // Inicializar datos de ejemplo
-    private void inicializarDatos() {
-        listaServicios = new ArrayList<>();
-        listaServicios.add(new Servicio("S001", "Cambio de aceite", 25.00));
-        listaServicios.add(new Servicio("S002", "Frenos", 80.00));
-        listaServicios.add(new Servicio("S003", "Suspensión", 120.00));
-        listaServicios.add(new Servicio("S004", "Electricidad", 45.00));
-        listaServicios.add(new Servicio("S005", "Motor", 200.00));
-        listaServicios.add(new Servicio("S006", "Limpieza", 30.00));
     }
 }
 

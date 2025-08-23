@@ -11,29 +11,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.poo_p1_g08.R;
 import com.example.poo_p1_g08.modelo.Cliente;
 import com.example.poo_p1_g08.modelo.FacturaEmpresa;
-import com.example.poo_p1_g08.modelo.Persona;
+import com.example.poo_p1_g08.modelo.OrdenServicio;
+import com.example.poo_p1_g08.utils.DataManager;
+import java.util.List;
 import java.util.ArrayList;
 
 public class ControladorFacturaEmpresa extends AppCompatActivity {
-    private ArrayList<FacturaEmpresa> listaFacturas;
     private TextView tvListaFacturas;
     private Button btnGenerarFactura, btnCrearFactura, btnRegresar;
     private ScrollView scrollView, scrollViewGenerarFactura;
     private EditText etClienteEmpresaId, etMes, etAño;
-    
-    // Listas de datos de ejemplo
-    private ArrayList<Persona> clientes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vistafacturas);
 
+        // Inicializar la aplicación si es necesario
+        DataManager.inicializarApp(this);
+
         // Inicializar componentes
         inicializarComponentes();
-        
-        // Inicializar datos de ejemplo
-        inicializarDatos();
 
         // Mostrar lista inicial
         mostrarListaFacturas();
@@ -76,6 +74,21 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
         
         // Limpiar campos
         limpiarCampos();
+        
+        // Mostrar clientes empresariales disponibles
+        mostrarClientesEmpresariales();
+    }
+
+    private void mostrarClientesEmpresariales() {
+        StringBuilder datos = new StringBuilder();
+        
+        List<Cliente> clientesEmpresariales = obtenerClientesEmpresariales();
+        datos.append("CLIENTES EMPRESARIALES:\n");
+        for (Cliente cliente : clientesEmpresariales) {
+            datos.append(String.format("%s (%s)\n", cliente.getNombre(), cliente.getId()));
+        }
+        
+        tvListaFacturas.setText(datos.toString());
     }
 
     private void generarFactura() {
@@ -91,47 +104,127 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
 
             // Validar mes
             if (mes < 1 || mes > 12) {
-                Toast.makeText(this, "Mes debe estar entre 1 y 12", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             // Validar año
             if (año < 2020 || año > 2030) {
-                Toast.makeText(this, "Año debe estar entre 2020 y 2030", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Simular generación de factura
-            String mensaje = String.format("Factura generada exitosamente:\n\n" +
-                    "Cliente: %s\n" +
-                    "Mes: %d\n" +
-                    "Año: %d\n\n" +
-                    "La factura incluye todos los servicios del mes seleccionado.", 
-                    clienteId, mes, año);
-
-            Toast.makeText(this, "Factura generada", Toast.LENGTH_LONG).show();
+            // Verificar que el cliente sea empresarial
+            Cliente cliente = DataManager.buscarClientePorId(this, clienteId);
+            if (cliente == null) {
+                return;
+            }
             
-            // Regresar a la vista de lista
-            regresarALista();
+            if (!cliente.getTipoCliente()) {
+                return;
+            }
+
+            // Generar factura usando DataManager
+            FacturaEmpresa factura = DataManager.generarFacturaEmpresa(this, clienteId, año, mes);
+            
+            if (factura != null) {
+                // Mostrar detalle de la factura
+                mostrarDetalleFactura(factura, mes, año);
+                regresarALista();
+            }
             
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Mes y año deben ser números válidos", Toast.LENGTH_SHORT).show();
+            // Error en formato de números
         } catch (Exception e) {
-            Toast.makeText(this, "Error al generar la factura", Toast.LENGTH_SHORT).show();
+            // Error al generar factura
         }
+    }
+
+    private void mostrarDetalleFactura(FacturaEmpresa factura, int mes, int año) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=== FACTURA EMPRESARIAL ===\n\n");
+        sb.append(String.format("Cliente: %s\n", factura.getCliente().getNombre()));
+        sb.append(String.format("ID Cliente: %s\n", factura.getCliente().getId()));
+        sb.append(String.format("Período: %s %d\n\n", obtenerNombreMes(mes), año));
+        
+        // Obtener órdenes del cliente en el período
+        List<OrdenServicio> ordenes = obtenerOrdenesClientePorPeriodo(factura.getCliente().getId(), año, mes);
+        
+        if (!ordenes.isEmpty()) {
+            sb.append("SERVICIOS CONTRATADOS:\n");
+            sb.append("------------------------\n");
+            
+            for (OrdenServicio orden : ordenes) {
+                sb.append(String.format("Orden: %s\n", orden.getCodigo()));
+                sb.append(String.format("Fecha: %s\n", orden.getFecha()));
+                sb.append(String.format("Vehículo: %s\n", orden.getVehiculo().getPlaca()));
+                sb.append(String.format("Técnico: %s\n", orden.getTecnico().getNombre()));
+                sb.append(String.format("Total Orden: $%.2f\n", orden.getTotal()));
+                sb.append("------------------------\n");
+            }
+        }
+        
+        sb.append("\nRESUMEN DE FACTURACIÓN:\n");
+        sb.append("------------------------\n");
+        sb.append(String.format("Total Servicios: $%.2f\n", factura.getTotalServicios()));
+        sb.append(String.format("Cargo Mensual (Prioridad): $%.2f\n", FacturaEmpresa.getCostoPrioridad()));
+        sb.append(String.format("TOTAL A PAGAR: $%.2f\n", factura.getTotalFactura()));
+        
+        // Mostrar factura en pantalla
+        tvListaFacturas.setText(sb.toString());
+    }
+
+    private List<OrdenServicio> obtenerOrdenesClientePorPeriodo(String clienteId, int año, int mes) {
+        List<OrdenServicio> todasLasOrdenes = DataManager.obtenerTodasLasOrdenes(this);
+        List<OrdenServicio> ordenesCliente = new ArrayList<>();
+        
+        for (OrdenServicio orden : todasLasOrdenes) {
+            if (orden.getCliente().getId().equals(clienteId)) {
+                // Parsear fecha (formato: YYYY-MM-DD)
+                String fecha = orden.getFecha();
+                if (fecha != null && fecha.length() >= 7) {
+                    try {
+                        int ordenAño = Integer.parseInt(fecha.substring(0, 4));
+                        int ordenMes = Integer.parseInt(fecha.substring(5, 7));
+                        
+                        if (ordenAño == año && ordenMes == mes) {
+                            ordenesCliente.add(orden);
+                        }
+                    } catch (NumberFormatException e) {
+                        // Ignorar fechas mal formateadas
+                    }
+                }
+            }
+        }
+        
+        return ordenesCliente;
+    }
+
+    private String obtenerNombreMes(int mes) {
+        String[] meses = {"", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
+        return meses[mes];
+    }
+
+    private List<Cliente> obtenerClientesEmpresariales() {
+        List<Cliente> todosLosClientes = DataManager.obtenerTodosLosClientes(this);
+        List<Cliente> clientesEmpresariales = new ArrayList<>();
+        
+        for (Cliente cliente : todosLosClientes) {
+            if (cliente.getTipoCliente()) { // Solo clientes empresariales
+                clientesEmpresariales.add(cliente);
+            }
+        }
+        
+        return clientesEmpresariales;
     }
 
     private boolean validarCampos() {
         if (etClienteEmpresaId.getText().toString().trim().isEmpty()) {
-            Toast.makeText(this, "Ingrese el ID del cliente", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (etMes.getText().toString().trim().isEmpty()) {
-            Toast.makeText(this, "Ingrese el mes", Toast.LENGTH_SHORT).show();
             return false;
         }
         if (etAño.getText().toString().trim().isEmpty()) {
-            Toast.makeText(this, "Ingrese el año", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -140,7 +233,7 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
     private void limpiarCampos() {
         etClienteEmpresaId.setText("");
         etMes.setText("");
-        etAño.setText("");
+        etAño.setText("2024");
     }
 
     private void regresarALista() {
@@ -156,47 +249,40 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
 
     // Método para mostrar la lista de facturas en el TextView
     private void mostrarListaFacturas() {
-        if (listaFacturas == null || listaFacturas.isEmpty()) {
-            tvListaFacturas.setText("No hay facturas generadas");
+        List<FacturaEmpresa> facturas = DataManager.obtenerTodasLasFacturas(this);
+        
+        if (facturas == null || facturas.isEmpty()) {
+            tvListaFacturas.setText("No hay facturas generadas\n\n" +
+                    "Use el formulario para generar nuevas facturas empresariales.\n\n" +
+                    "Clientes empresariales disponibles:\n" +
+                    obtenerListaClientesEmpresariales());
             return;
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("LISTA DE FACTURAS:\n\n");
+        sb.append("LISTA DE FACTURAS GENERADAS:\n\n");
         
-        for (FacturaEmpresa factura : listaFacturas) {
+        for (FacturaEmpresa factura : facturas) {
             sb.append(String.format("Cliente: %s\n", factura.getCliente().getNombre()));
-            sb.append(String.format("Período: %s %d\n", factura.getNombreMes(), factura.getAño()));
+            sb.append(String.format("Período: %s %d\n", obtenerNombreMes(factura.getMes()), factura.getAño()));
             sb.append(String.format("Total Servicios: $%.2f\n", factura.getTotalServicios()));
-            sb.append(String.format("Costo Prioridad: $%.2f\n", FacturaEmpresa.getCostoPrioridad()));
-            sb.append(String.format("TOTAL FACTURA: $%.2f\n", factura.getTotalFactura()));
+            sb.append(String.format("Cargo Prioridad: $%.2f\n", FacturaEmpresa.getCostoPrioridad()));
+            sb.append(String.format("Total: $%.2f\n", factura.getTotalFactura()));
             sb.append("------------------------\n");
         }
         
         tvListaFacturas.setText(sb.toString());
     }
 
-    // Inicializar datos de ejemplo
-    private void inicializarDatos() {
-        // Clientes de ejemplo (incluyendo empresariales)
-        clientes = new ArrayList<>();
-        clientes.add(new Cliente("C001", "Carlos Ruiz", "0991111111", "Av. Principal 123", false));
-        clientes.add(new Cliente("C002", "Ana García", "0992222222", "Calle Secundaria 456", false));
-        clientes.add(new Cliente("C003", "Empresa ABC", "0993333333", "Zona Industrial 789", true));
-        clientes.add(new Cliente("C004", "Corporación XYZ", "0994444444", "Centro Comercial 321", true));
-
-        // Crear 2 facturas de ejemplo para mostrar en la lista
-        listaFacturas = new ArrayList<>();
+    private String obtenerListaClientesEmpresariales() {
+        List<Cliente> clientesEmpresariales = obtenerClientesEmpresariales();
+        StringBuilder sb = new StringBuilder();
         
-        // Factura 1
-        Cliente cliente1 = (Cliente) clientes.get(2); // Empresa ABC
-        FacturaEmpresa factura1 = new FacturaEmpresa(cliente1, 12, 2024); // Diciembre 2024
-        listaFacturas.add(factura1);
+        for (Cliente cliente : clientesEmpresariales) {
+            sb.append("• ").append(cliente.getNombre()).append(" (").append(cliente.getId()).append(")\n");
+        }
         
-        // Factura 2
-        Cliente cliente2 = (Cliente) clientes.get(3); // Corporación XYZ
-        FacturaEmpresa factura2 = new FacturaEmpresa(cliente2, 11, 2024); // Noviembre 2024
-        listaFacturas.add(factura2);
+        return sb.toString();
     }
 }
 
