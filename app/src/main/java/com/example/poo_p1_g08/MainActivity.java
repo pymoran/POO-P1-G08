@@ -14,10 +14,15 @@ import com.example.poo_p1_g08.controlador.ControladorOrden;
 import com.example.poo_p1_g08.controlador.ControladorProveedor;
 import com.example.poo_p1_g08.controlador.ControladorServicio;
 import com.example.poo_p1_g08.controlador.ControladorTecnico;
+import com.example.poo_p1_g08.ReporteServicioActivity;
+import com.example.poo_p1_g08.ReporteTecnicoActivity;
 import com.example.poo_p1_g08.modelo.Cliente;
 import com.example.poo_p1_g08.modelo.Proveedor;
 import com.example.poo_p1_g08.modelo.Servicio;
 import com.example.poo_p1_g08.modelo.Tecnico;
+import com.example.poo_p1_g08.modelo.OrdenServicio;
+import com.example.poo_p1_g08.modelo.Vehiculo;
+import com.example.poo_p1_g08.modelo.DetalledelServicio;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String FILE_CLIENTES = "clientes.ser";
     private static final String FILE_SERVICIOS = "servicios.ser";
     private static final String FILE_PROVEEDORES = "proveedores.ser";
+    private static final String FILE_ORDENES = "ordenes.ser";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
             inicializarArchivoClientes();
             inicializarArchivoServicios();
             inicializarArchivoProveedores();
+            inicializarArchivoOrdenes();
             
             Log.i(TAG, "Inicialización de archivos serializados completada exitosamente");
             
@@ -303,6 +310,123 @@ public class MainActivity extends AppCompatActivity {
             
         } catch (IOException e) {
             Log.e(TAG, "Error al guardar proveedores en archivo: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+    // ==================== ÓRDENES DE SERVICIO ====================
+    
+    private void inicializarArchivoOrdenes() {
+        try {
+            List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
+            if (ordenes.isEmpty()) {
+                // Crear 4 órdenes de ejemplo (2 normales, 2 empresariales)
+                List<OrdenServicio> ordenesEjemplo = new ArrayList<>();
+                
+                // Obtener datos necesarios
+                List<Cliente> clientes = obtenerTodosLosClientes();
+                List<Tecnico> tecnicos = obtenerTodosLosTecnicos();
+                List<Servicio> servicios = obtenerTodosLosServicios();
+                
+                if (!clientes.isEmpty() && !tecnicos.isEmpty() && !servicios.isEmpty()) {
+                    // Orden 1 - Cliente normal
+                    Cliente cliente1 = clientes.get(0);
+                    Tecnico tecnico1 = tecnicos.get(0);
+                    Servicio servicio1 = servicios.get(0);
+                    Vehiculo vehiculo1 = new Vehiculo("ABC123", Vehiculo.TipoVehiculo.AUTOMOVIL);
+                    OrdenServicio orden1 = new OrdenServicio(cliente1, vehiculo1, tecnico1, "2024-01-15");
+                    orden1.agregarDetalle(servicio1, 1);
+                    ordenesEjemplo.add(orden1);
+                    
+                    // Orden 2 - Cliente normal
+                    Cliente cliente2 = clientes.size() > 1 ? clientes.get(1) : cliente1;
+                    Tecnico tecnico2 = tecnicos.size() > 1 ? tecnicos.get(1) : tecnico1;
+                    Servicio servicio2 = servicios.size() > 1 ? servicios.get(1) : servicio1;
+                    Vehiculo vehiculo2 = new Vehiculo("XYZ789", Vehiculo.TipoVehiculo.MOTOCICLETA);
+                    OrdenServicio orden2 = new OrdenServicio(cliente2, vehiculo2, tecnico2, "2024-01-20");
+                    orden2.agregarDetalle(servicio2, 1);
+                    ordenesEjemplo.add(orden2);
+                    
+                    // Orden 3 - Cliente empresarial
+                    Cliente clienteEmp1 = null;
+                    for (Cliente c : clientes) {
+                        if (c.getTipoCliente()) {
+                            clienteEmp1 = c;
+                            break;
+                        }
+                    }
+                    if (clienteEmp1 != null) {
+                        Tecnico tecnico3 = tecnicos.size() > 2 ? tecnicos.get(2) : tecnico1;
+                        Servicio servicio3 = servicios.size() > 2 ? servicios.get(2) : servicio1;
+                        Vehiculo vehiculo3 = new Vehiculo("BUS001", Vehiculo.TipoVehiculo.BUS);
+                        OrdenServicio orden3 = new OrdenServicio(clienteEmp1, vehiculo3, tecnico3, "2024-01-25");
+                        orden3.agregarDetalle(servicio3, 2);
+                        ordenesEjemplo.add(orden3);
+                    }
+                    
+                    // Orden 4 - Cliente empresarial
+                    Cliente clienteEmp2 = null;
+                    for (Cliente c : clientes) {
+                        if (c.getTipoCliente() && !c.getId().equals(clienteEmp1 != null ? clienteEmp1.getId() : "")) {
+                            clienteEmp2 = c;
+                            break;
+                        }
+                    }
+                    if (clienteEmp2 != null) {
+                        Tecnico tecnico4 = tecnicos.size() > 3 ? tecnicos.get(3) : tecnico1;
+                        Servicio servicio4 = servicios.size() > 3 ? servicios.get(3) : servicio1;
+                        Vehiculo vehiculo4 = new Vehiculo("TRUCK001", Vehiculo.TipoVehiculo.AUTOMOVIL);
+                        OrdenServicio orden4 = new OrdenServicio(clienteEmp2, vehiculo4, tecnico4, "2024-01-30");
+                        orden4.agregarDetalle(servicio4, 1);
+                        ordenesEjemplo.add(orden4);
+                    }
+                }
+                
+                // Guardar órdenes de ejemplo
+                for (OrdenServicio orden : ordenesEjemplo) {
+                    guardarOrdenEnArchivo(orden);
+                }
+                
+                Log.i(TAG, "Archivo de órdenes creado con datos de ejemplo");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error al inicializar órdenes: " + e.getMessage(), e);
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private List<OrdenServicio> obtenerTodasLasOrdenes() {
+        List<OrdenServicio> ordenes = new ArrayList<>();
+        
+        try (FileInputStream fis = openFileInput(FILE_ORDENES);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            
+            ordenes = (List<OrdenServicio>) ois.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            Log.w(TAG, "Archivo de órdenes no encontrado o error al leer: " + e.getMessage());
+        }
+        
+        return ordenes;
+    }
+    
+    private boolean guardarOrdenEnArchivo(OrdenServicio orden) {
+        try {
+            List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
+            ordenes.add(orden);
+            
+            try (FileOutputStream fos = openFileOutput(FILE_ORDENES, Context.MODE_PRIVATE);
+                 ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+                
+                oos.writeObject(ordenes);
+                return true;
+                
+            } catch (IOException e) {
+                Log.e(TAG, "Error al guardar órdenes en archivo: " + e.getMessage(), e);
+                return false;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error al guardar orden: " + e.getMessage(), e);
             return false;
         }
     }
