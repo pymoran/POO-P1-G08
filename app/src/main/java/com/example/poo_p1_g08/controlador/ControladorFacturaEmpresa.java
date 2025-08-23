@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.poo_p1_g08.R;
 import com.example.poo_p1_g08.modelo.Cliente;
+import com.example.poo_p1_g08.modelo.DetalledelServicio;
 import com.example.poo_p1_g08.modelo.FacturaEmpresa;
 import com.example.poo_p1_g08.modelo.OrdenServicio;
 
@@ -266,16 +267,59 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
             return;
         }
 
+        // Ordenar las facturas por fecha de creación (más recientes primero)
+        facturas.sort((f1, f2) -> {
+            try {
+                // Comparar fechas de creación en orden descendente (más reciente primero)
+                String fecha1 = f1.getFechaCreacion();
+                String fecha2 = f2.getFechaCreacion();
+                
+                if (fecha1 != null && fecha2 != null) {
+                    return fecha2.compareTo(fecha1);
+                }
+                return 0;
+            } catch (Exception e) {
+                return 0; // Si hay error, mantener orden original
+            }
+        });
+
         StringBuilder sb = new StringBuilder();
-        sb.append("LISTA DE FACTURAS GENERADAS:\n\n");
+        sb.append("LISTA DE FACTURAS GENERADAS (Ordenadas por fecha de creación - más recientes primero):\n\n");
         
         for (FacturaEmpresa factura : facturas) {
             sb.append(String.format("Cliente: %s\n", factura.getCliente().getNombre()));
-            sb.append(String.format("Período: %s %d\n", obtenerNombreMes(factura.getMes()), factura.getAño()));
+            sb.append(String.format("Período Facturado: %s %d\n", obtenerNombreMes(factura.getMes()), factura.getAño()));
+            sb.append(String.format("Fecha de Creación: %s\n", factura.getFechaCreacion()));
+            
+            // Mostrar información detallada de los servicios contratados
+            sb.append("\nServicios Contratados:\n");
+            if (factura.getOrdenes() != null && !factura.getOrdenes().isEmpty()) {
+                for (OrdenServicio orden : factura.getOrdenes()) {
+                    sb.append(String.format("  • Orden %s (%s)\n", orden.getCodigo(), orden.getFecha()));
+                    sb.append(String.format("    Vehículo: %s - Técnico: %s\n", 
+                        orden.getVehiculo().getPlaca(), orden.getTecnico().getNombre()));
+                    
+                    // Mostrar detalles de cada servicio en la orden
+                    if (orden.getDetalle() != null && !orden.getDetalle().isEmpty()) {
+                        for (int i = 0; i < orden.getDetalle().size(); i++) {
+                            DetalledelServicio detalle = orden.getDetalle().get(i);
+                            sb.append(String.format("    - %s x%d = $%.2f\n", 
+                                detalle.getServicio().getNombre(), 
+                                detalle.getCantidad(), 
+                                detalle.getSubtotal()));
+                        }
+                    }
+                    sb.append(String.format("    Total Orden: $%.2f\n", orden.getTotal()));
+                }
+            } else {
+                sb.append("  No hay servicios registrados\n");
+            }
+            
+            sb.append(String.format("\nResumen Financiero:\n"));
             sb.append(String.format("Total Servicios: $%.2f\n", factura.getTotalServicios()));
-            sb.append(String.format("Cargo Prioridad: $%.2f\n", FacturaEmpresa.getCostoPrioridad()));
-            sb.append(String.format("Total: $%.2f\n", factura.getTotalFactura()));
-            sb.append("------------------------\n");
+            sb.append(String.format("Cargo Prioridad Empresarial: $%.2f\n", FacturaEmpresa.getCostoPrioridad()));
+            sb.append(String.format("TOTAL FACTURA: $%.2f\n", factura.getTotalFactura()));
+            sb.append("========================================\n");
         }
         
         tvListaFacturas.setText(sb.toString());

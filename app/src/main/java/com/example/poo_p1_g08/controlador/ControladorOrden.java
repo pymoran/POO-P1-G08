@@ -300,8 +300,22 @@ public class ControladorOrden extends AppCompatActivity {
             return;
         }
 
+        // Ordenar las órdenes por fecha (más recientes primero)
+        ordenes.sort((o1, o2) -> {
+            try {
+                // Parsear fechas en formato YYYY-MM-DD
+                String fecha1 = o1.getFecha();
+                String fecha2 = o2.getFecha();
+                
+                // Comparar en orden descendente (más reciente primero)
+                return fecha2.compareTo(fecha1);
+            } catch (Exception e) {
+                return 0; // Si hay error, mantener orden original
+            }
+        });
+
         StringBuilder sb = new StringBuilder();
-        sb.append("LISTA DE ÓRDENES:\n\n");
+        sb.append("LISTA DE ÓRDENES (Ordenadas por fecha - más recientes primero):\n\n");
         
         for (OrdenServicio orden : ordenes) {
             sb.append(String.format("Código: %s\n", orden.getCodigo()));

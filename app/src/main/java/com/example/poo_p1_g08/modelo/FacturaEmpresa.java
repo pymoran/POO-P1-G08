@@ -1,7 +1,10 @@
 package com.example.poo_p1_g08.modelo;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class FacturaEmpresa implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -9,6 +12,7 @@ public class FacturaEmpresa implements Serializable {
     private Cliente cliente;
     private int mes;
     private int año;
+    private String fechaCreacion;
     private ArrayList<OrdenServicio> ordenes;
     private double totalServicios;
     private static final double COSTO_PRIORIDAD = 50.0;
@@ -17,6 +21,9 @@ public class FacturaEmpresa implements Serializable {
         this.cliente = cliente;
         this.mes = mes;
         this.año = año;
+        // Generar fecha de creación automáticamente en formato YYYY-MM-DD HH:mm:ss
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        this.fechaCreacion = sdf.format(new Date());
         this.ordenes = new ArrayList<>();
         this.totalServicios = 0.0;
     }
@@ -43,6 +50,15 @@ public class FacturaEmpresa implements Serializable {
 
     public int getAño() {
         return año;
+    }
+
+    public String getFechaCreacion() {
+        // Si la fecha de creación es null (facturas antiguas), generar una fecha por defecto
+        if (fechaCreacion == null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            fechaCreacion = sdf.format(new Date());
+        }
+        return fechaCreacion;
     }
 
     public ArrayList<OrdenServicio> getOrdenes() {
