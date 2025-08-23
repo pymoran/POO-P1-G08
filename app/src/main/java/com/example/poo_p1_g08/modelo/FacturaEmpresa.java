@@ -1,9 +1,11 @@
 package com.example.poo_p1_g08.modelo;
 
-
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class FacturaEmpresa {
+public class FacturaEmpresa implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private Cliente cliente;
     private int mes;
     private int año;

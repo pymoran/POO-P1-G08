@@ -1,7 +1,10 @@
 package com.example.poo_p1_g08.modelo;
 
-public class Persona {
+import java.io.Serializable;
 
+public class Persona implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private String id,nombre,telefono;
 
     Persona(String id, String nombre, String telefono){

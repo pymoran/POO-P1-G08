@@ -1,6 +1,10 @@
 package com.example.poo_p1_g08.modelo;
 
-public class Vehiculo {
+import java.io.Serializable;
+
+public class Vehiculo implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     public enum TipoVehiculo{
         AUTOMOVIL,MOTOCICLETA,BUS
     }

@@ -1,6 +1,10 @@
 package com.example.poo_p1_g08.modelo;
 
-public class Proveedor extends Persona{
+import java.io.Serializable;
+
+public class Proveedor extends Persona implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private String descripcion;
     public Proveedor(String id, String nombre, String telefono, String descripcion){
         super(id,nombre,telefono);

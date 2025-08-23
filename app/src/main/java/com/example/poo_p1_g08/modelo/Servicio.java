@@ -2,10 +2,13 @@ package com.example.poo_p1_g08.modelo;
 
 import android.os.Build;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class Servicio {
+public class Servicio implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private String codigo, nombre;
     private double precio;
     private ArrayList<HistorialPrecio> historialPrecios = new ArrayList<>();

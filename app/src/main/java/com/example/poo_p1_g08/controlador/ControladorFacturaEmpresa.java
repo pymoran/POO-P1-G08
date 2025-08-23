@@ -12,11 +12,21 @@ import com.example.poo_p1_g08.R;
 import com.example.poo_p1_g08.modelo.Cliente;
 import com.example.poo_p1_g08.modelo.FacturaEmpresa;
 import com.example.poo_p1_g08.modelo.OrdenServicio;
-import com.example.poo_p1_g08.utils.DataManager;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.ArrayList;
 
 public class ControladorFacturaEmpresa extends AppCompatActivity {
+    private static final String TAG = "ControladorFacturaEmpresa";
+    private static final String FILE_FACTURAS = "facturas.ser";
+    private static final String FILE_CLIENTES = "clientes.ser";
+    private static final String FILE_ORDENES = "ordenes.ser";
+    
     private TextView tvListaFacturas;
     private Button btnGenerarFactura, btnCrearFactura, btnRegresar;
     private ScrollView scrollView, scrollViewGenerarFactura;
@@ -26,9 +36,6 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vistafacturas);
-
-        // Inicializar la aplicación si es necesario
-        DataManager.inicializarApp(this);
 
         // Inicializar componentes
         inicializarComponentes();
@@ -113,7 +120,7 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
             }
 
             // Verificar que el cliente sea empresarial
-            Cliente cliente = DataManager.buscarClientePorId(this, clienteId);
+            Cliente cliente = buscarClientePorId(clienteId);
             if (cliente == null) {
                 return;
             }
@@ -122,8 +129,8 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
                 return;
             }
 
-            // Generar factura usando DataManager
-            FacturaEmpresa factura = DataManager.generarFacturaEmpresa(this, clienteId, año, mes);
+            // Generar factura
+            FacturaEmpresa factura = generarFacturaEmpresa(clienteId, año, mes);
             
             if (factura != null) {
                 // Mostrar detalle de la factura
@@ -173,7 +180,7 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
     }
 
     private List<OrdenServicio> obtenerOrdenesClientePorPeriodo(String clienteId, int año, int mes) {
-        List<OrdenServicio> todasLasOrdenes = DataManager.obtenerTodasLasOrdenes(this);
+        List<OrdenServicio> todasLasOrdenes = obtenerTodasLasOrdenes();
         List<OrdenServicio> ordenesCliente = new ArrayList<>();
         
         for (OrdenServicio orden : todasLasOrdenes) {
@@ -205,7 +212,7 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
     }
 
     private List<Cliente> obtenerClientesEmpresariales() {
-        List<Cliente> todosLosClientes = DataManager.obtenerTodosLosClientes(this);
+        List<Cliente> todosLosClientes = obtenerTodosLosClientes();
         List<Cliente> clientesEmpresariales = new ArrayList<>();
         
         for (Cliente cliente : todosLosClientes) {
@@ -249,7 +256,7 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
 
     // Método para mostrar la lista de facturas en el TextView
     private void mostrarListaFacturas() {
-        List<FacturaEmpresa> facturas = DataManager.obtenerTodasLasFacturas(this);
+        List<FacturaEmpresa> facturas = obtenerTodasLasFacturas();
         
         if (facturas == null || facturas.isEmpty()) {
             tvListaFacturas.setText("No hay facturas generadas\n\n" +
@@ -283,6 +290,154 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
         }
         
         return sb.toString();
+    }
+
+    // ==================== PERSISTENCIA DE FACTURAS ====================
+    
+    /**
+     * Genera una factura mensual para un cliente empresarial
+     */
+    public FacturaEmpresa generarFacturaEmpresa(String clienteId, int año, int mes) {
+        try {
+            // Buscar el cliente empresarial
+            Cliente cliente = buscarClienteEmpresarialPorId(clienteId);
+            if (cliente == null) {
+                return null;
+            }
+            
+            // Obtener todas las órdenes del cliente en el mes y año especificado
+            List<OrdenServicio> ordenesCliente = obtenerOrdenesClientePorPeriodo(clienteId, año, mes);
+            
+            if (ordenesCliente.isEmpty()) {
+                return null;
+            }
+            
+            // Calcular total de servicios
+            double totalServicios = 0.0;
+            for (OrdenServicio orden : ordenesCliente) {
+                totalServicios += orden.getTotal();
+            }
+            
+            // Crear factura
+            FacturaEmpresa factura = new FacturaEmpresa(cliente, mes, año);
+            // Agregar órdenes
+            for (OrdenServicio orden : ordenesCliente) {
+                factura.agregarOrden(orden);
+            }
+            
+            // Guardar factura
+            if (guardarFactura(factura)) {
+                return factura;
+            } else {
+                return null;
+            }
+            
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    /**
+     * Guarda una factura en el archivo
+     */
+    public boolean guardarFactura(FacturaEmpresa factura) {
+        try {
+            List<FacturaEmpresa> facturas = obtenerTodasLasFacturas();
+            facturas.add(factura);
+            return guardarFacturasEnArchivo(facturas);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Obtiene todas las facturas
+     */
+    @SuppressWarnings("unchecked")
+    public List<FacturaEmpresa> obtenerTodasLasFacturas() {
+        List<FacturaEmpresa> facturas = new ArrayList<>();
+        
+        try (FileInputStream fis = openFileInput(FILE_FACTURAS);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            
+            facturas = (List<FacturaEmpresa>) ois.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            // Archivo no existe o error al leer
+        }
+        
+        return facturas;
+    }
+    
+    /**
+     * Guarda todas las facturas en el archivo
+     */
+    private boolean guardarFacturasEnArchivo(List<FacturaEmpresa> facturas) {
+        try (FileOutputStream fos = openFileOutput(FILE_FACTURAS, MODE_PRIVATE);
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            
+            oos.writeObject(facturas);
+            return true;
+            
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    // ==================== PERSISTENCIA DE CLIENTES ====================
+    
+    @SuppressWarnings("unchecked")
+    private List<Cliente> obtenerTodosLosClientes() {
+        List<Cliente> clientes = new ArrayList<>();
+        
+        try (FileInputStream fis = openFileInput(FILE_CLIENTES);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            
+            clientes = (List<Cliente>) ois.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            // Archivo no existe o error al leer
+        }
+        
+        return clientes;
+    }
+    
+    private Cliente buscarClientePorId(String id) {
+        List<Cliente> clientes = obtenerTodosLosClientes();
+        for (Cliente c : clientes) {
+            if (c.getId().equalsIgnoreCase(id)) {
+                return c;
+            }
+        }
+        return null;
+    }
+    
+    private Cliente buscarClienteEmpresarialPorId(String id) {
+        List<Cliente> clientes = obtenerTodosLosClientes();
+        for (Cliente c : clientes) {
+            if (c.getId().equalsIgnoreCase(id) && c.getTipoCliente()) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    // ==================== PERSISTENCIA DE ÓRDENES ====================
+    
+    @SuppressWarnings("unchecked")
+    private List<OrdenServicio> obtenerTodasLasOrdenes() {
+        List<OrdenServicio> ordenes = new ArrayList<>();
+        
+        try (FileInputStream fis = openFileInput(FILE_ORDENES);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            
+            ordenes = (List<OrdenServicio>) ois.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            // Archivo no existe o error al leer
+        }
+        
+        return ordenes;
     }
 }
 

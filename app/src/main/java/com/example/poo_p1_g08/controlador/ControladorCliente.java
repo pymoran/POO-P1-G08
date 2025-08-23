@@ -1,4 +1,6 @@
 package com.example.poo_p1_g08.controlador;
+
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -6,145 +8,143 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.os.Bundle;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.poo_p1_g08.R;
 import com.example.poo_p1_g08.modelo.Cliente;
-import com.example.poo_p1_g08.utils.DataManager;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorCliente extends AppCompatActivity {
+    private static final String TAG = "ControladorCliente";
+    private static final String FILE_CLIENTES = "clientes.ser";
+    
+    private TextView tvClientes;
     private Button btnAgregarCliente, btnRegresar, btnGuardarCliente;
-    private ScrollView scrollViewCliente, scrollViewListaClientes;
+    private ScrollView scrollViewListaClientes, scrollViewCliente;
     private EditText etIdCliente, etNombreCliente, etTelefonoCliente, etDireccionCliente;
     private RadioGroup rgTipoCliente;
     private RadioButton rbClienteIndividual, rbClienteEmpresarial;
-    private TextView tvClientes;
-    
-    public ControladorCliente(){
-        // Constructor vacío
-    }
 
-    public String agregarCliente(Cliente CLnuevo){
-        // Verificar si ya existe
-        Cliente existente = DataManager.buscarClientePorId(this, CLnuevo.getId());
-        if (existente != null) {
-            return ">>Cliente ya existente intente nuevamente";
-        }
-        
-        // Guardar en archivo
-        if (DataManager.guardarCliente(this, CLnuevo)) {
-            return "Cliente agregado satisfactoriamente";
-        } else {
-            return "Error al guardar cliente";
-        }
-    }
-    
-    public Cliente buscarClientePorId(String id, boolean soloTipoCliente) {
-        if (id == null) return null;
-        String idBuscado = id.trim();
-
-        if (soloTipoCliente) {
-            return DataManager.buscarClienteEmpresarialPorId(this, idBuscado);
-        } else {
-            return DataManager.buscarClientePorId(this, idBuscado);
-        }
-    }
-
-    public Cliente buscarCliente(String id){
-        return DataManager.buscarClientePorId(this, id);
-    }
-
-    public List<Cliente> getListaCliente(){
-        return DataManager.obtenerTodosLosClientes(this);
-    }
-    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vistacliente);
 
-        // Inicializar la aplicación si es necesario
-        DataManager.inicializarApp(this);
+        // Inicializar componentes
+        inicializarComponentes();
 
-        // Vinculamos los elementos del XML con Java y configuramos eventos
-        inicializar();
-        
-        // Mostrar lista de clientes
+        // Mostrar lista inicial
         mostrarListaClientes();
+
+        // Eventos de botones
+        configurarEventos();
     }
-    
-    private void inicializar() {
-        // Botones principales
-        btnAgregarCliente = findViewById(R.id.btnAgregarCliente);
-        btnRegresar = findViewById(R.id.btnRegresar);
-        
-        // ScrollViews
-        scrollViewCliente = findViewById(R.id.scrollViewCliente);
-        scrollViewListaClientes = findViewById(R.id.scrollViewListaClientes);
-        
-        // TextView para lista de clientes
+
+    private void inicializarComponentes() {
+        // TextViews
         tvClientes = findViewById(R.id.tvClientes);
         
-        // ScrollView y campos del formulario
+        // Botones
+        btnAgregarCliente = findViewById(R.id.btnAgregarCliente);
+        btnRegresar = findViewById(R.id.btnRegresar);
+        btnGuardarCliente = findViewById(R.id.btnGuardarCliente);
+        
+        // ScrollViews
+        scrollViewListaClientes = findViewById(R.id.scrollViewListaClientes);
+        scrollViewCliente = findViewById(R.id.scrollViewCliente);
+        
+        // EditTexts
         etIdCliente = findViewById(R.id.etIdCliente);
         etNombreCliente = findViewById(R.id.etNombreCliente);
         etTelefonoCliente = findViewById(R.id.etTelefonoCliente);
         etDireccionCliente = findViewById(R.id.etDireccionCliente);
+        
+        // RadioGroup y RadioButtons
         rgTipoCliente = findViewById(R.id.rgTipoCliente);
         rbClienteIndividual = findViewById(R.id.rbClienteIndividual);
         rbClienteEmpresarial = findViewById(R.id.rbClienteEmpresarial);
-        
-        // Botón del formulario
-        btnGuardarCliente = findViewById(R.id.btnGuardarCliente);
-        
-        // Configurar eventos
-        // Evento para mostrar formulario de agregar cliente
-        btnAgregarCliente.setOnClickListener(v -> mostrarFormularioCliente());
-
-        // Evento para guardar cliente
-        btnGuardarCliente.setOnClickListener(v -> guardarCliente());
-
-        btnRegresar.setOnClickListener(v -> finish());
     }
-    
-    private void mostrarListaClientes() {
-        List<Cliente> clientes = DataManager.obtenerTodosLosClientes(this);
+
+    private void configurarEventos() {
+        btnAgregarCliente.setOnClickListener(v -> mostrarFormularioAgregarCliente());
+        btnRegresar.setOnClickListener(v -> finish());
+        btnGuardarCliente.setOnClickListener(v -> crearCliente());
+    }
+
+    private void mostrarFormularioAgregarCliente() {
+        // Ocultar lista y mostrar formulario
+        scrollViewListaClientes.setVisibility(View.GONE);
+        scrollViewCliente.setVisibility(View.VISIBLE);
+        btnAgregarCliente.setVisibility(View.GONE);
+        btnGuardarCliente.setVisibility(View.VISIBLE);
         
-        if (clientes == null || clientes.isEmpty()) {
-            tvClientes.setText("No hay clientes registrados");
+        // Limpiar campos
+        limpiarCampos();
+    }
+
+    private void crearCliente() {
+        // Validar campos
+        if (!validarCampos()) {
             return;
         }
 
-        StringBuilder sb = new StringBuilder();
-        
-        for (Cliente c : clientes) {
-            sb.append(String.format("ID: %s\n", c.getId()));
-            sb.append(String.format("Nombre: %s\n", c.getNombre()));
-            sb.append(String.format("Teléfono: %s\n", c.getTelefono()));
-            sb.append(String.format("Dirección: %s\n", c.getDireccion()));
-            sb.append(String.format("Tipo: %s\n", c.getTipoCliente() ? "Empresarial" : "Normal"));
-            sb.append("------------------------\n");
+        try {
+            String id = etIdCliente.getText().toString().trim();
+            String nombre = etNombreCliente.getText().toString().trim();
+            String telefono = etTelefonoCliente.getText().toString().trim();
+            String direccion = etDireccionCliente.getText().toString().trim();
+            boolean tipoCliente = rbClienteEmpresarial.isChecked(); // true = Empresarial, false = Individual
+
+            // Crear cliente
+            Cliente CLnuevo = new Cliente(id, nombre, telefono, direccion, tipoCliente);
+
+            // Verificar si ya existe
+            Cliente existente = buscarClientePorId(CLnuevo.getId());
+            if (existente != null) {
+                Toast.makeText(this, "Ya existe un cliente con ese ID", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Guardar cliente
+            if (guardarCliente(CLnuevo)) {
+                Toast.makeText(this, "Cliente creado exitosamente", Toast.LENGTH_LONG).show();
+                regresarALista();
+            } else {
+                Toast.makeText(this, "Error al crear el cliente", Toast.LENGTH_SHORT).show();
+            }
+            
+        } catch (Exception e) {
+            Toast.makeText(this, "Error al crear el cliente", Toast.LENGTH_SHORT).show();
         }
-        
-        String textoFinal = sb.toString();
-        tvClientes.setText(textoFinal);
-        
-        // Asegurar que la lista sea visible
-        scrollViewListaClientes.setVisibility(View.VISIBLE);
-        scrollViewCliente.setVisibility(View.GONE);
-        btnAgregarCliente.setVisibility(View.VISIBLE);
     }
-    
-    private void mostrarFormularioCliente() {
-        scrollViewCliente.setVisibility(View.VISIBLE);
-        scrollViewListaClientes.setVisibility(View.GONE);
-        btnAgregarCliente.setVisibility(View.GONE);
-        limpiarCampos();
+
+    private boolean validarCampos() {
+        if (etIdCliente.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el ID del cliente", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (etNombreCliente.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el nombre del cliente", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (etTelefonoCliente.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el teléfono del cliente", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (etDireccionCliente.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese la dirección del cliente", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
-    
+
     private void limpiarCampos() {
         etIdCliente.setText("");
         etNombreCliente.setText("");
@@ -152,31 +152,123 @@ public class ControladorCliente extends AppCompatActivity {
         etDireccionCliente.setText("");
         rbClienteIndividual.setChecked(true);
     }
-    
-    private void guardarCliente() {
-        // Obtener valores de los campos
-        String id = etIdCliente.getText().toString().trim();
-        String nombre = etNombreCliente.getText().toString().trim();
-        String telefono = etTelefonoCliente.getText().toString().trim();
-        String direccion = etDireccionCliente.getText().toString().trim();
-        boolean tipoCliente = rbClienteIndividual.isChecked(); // true = Individual, false = Empresarial
+
+    private void regresarALista() {
+        // Mostrar lista y ocultar formulario
+        scrollViewListaClientes.setVisibility(View.VISIBLE);
+        scrollViewCliente.setVisibility(View.GONE);
+        btnAgregarCliente.setVisibility(View.VISIBLE);
+        btnGuardarCliente.setVisibility(View.GONE);
         
-        // Validar campos obligatorios
-        if (id.isEmpty() || nombre.isEmpty() || telefono.isEmpty() || direccion.isEmpty()) {
+        // Actualizar lista
+        mostrarListaClientes();
+    }
+
+    // Método para mostrar la lista de clientes en el TextView
+    private void mostrarListaClientes() {
+        List<Cliente> clientes = obtenerTodosLosClientes();
+        
+        if (clientes == null || clientes.isEmpty()) {
+            tvClientes.setText("No hay clientes registrados");
             return;
         }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("LISTA DE CLIENTES:\n\n");
         
-        // Crear nuevo cliente
-        Cliente nuevoCliente = new Cliente(id, nombre, telefono, direccion, tipoCliente);
-        String resultado = agregarCliente(nuevoCliente);
+        for (Cliente cliente : clientes) {
+            String tipo = cliente.getTipoCliente() ? "EMPRESARIAL" : "PARTICULAR";
+            sb.append(String.format("ID: %s\n", cliente.getId()));
+            sb.append(String.format("Nombre: %s\n", cliente.getNombre()));
+            sb.append(String.format("Teléfono: %s\n", cliente.getTelefono()));
+            sb.append(String.format("Dirección: %s\n", cliente.getDireccion()));
+            sb.append(String.format("Tipo: %s\n", tipo));
+            sb.append("------------------------\n");
+        }
         
-        // Si se agregó exitosamente, ocultar el formulario y actualizar lista
-        if (resultado.equals("Cliente agregado satisfactoriamente")) {
-            scrollViewCliente.setVisibility(View.GONE);
-            scrollViewListaClientes.setVisibility(View.VISIBLE);
-            btnAgregarCliente.setVisibility(View.VISIBLE);
-            limpiarCampos();
-            mostrarListaClientes();
+        tvClientes.setText(sb.toString());
+    }
+
+    // ==================== PERSISTENCIA DE CLIENTES ====================
+    
+    /**
+     * Guarda un cliente en el archivo serializado
+     */
+    public boolean guardarCliente(Cliente cliente) {
+        try {
+            List<Cliente> clientes = obtenerTodosLosClientes();
+            
+            // Verificar si ya existe
+            for (Cliente c : clientes) {
+                if (c.getId().equalsIgnoreCase(cliente.getId())) {
+                    return false; // Ya existe
+                }
+            }
+            
+            clientes.add(cliente);
+            return guardarClientesEnArchivo(clientes);
+            
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Obtiene todos los clientes desde el archivo serializado
+     */
+    @SuppressWarnings("unchecked")
+    public List<Cliente> obtenerTodosLosClientes() {
+        List<Cliente> clientes = new ArrayList<>();
+        
+        try (FileInputStream fis = openFileInput(FILE_CLIENTES);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            
+            clientes = (List<Cliente>) ois.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            // Archivo no existe o error al leer
+        }
+        
+        return clientes;
+    }
+    
+    /**
+     * Busca un cliente por ID
+     */
+    public Cliente buscarClientePorId(String id) {
+        List<Cliente> clientes = obtenerTodosLosClientes();
+        for (Cliente c : clientes) {
+            if (c.getId().equalsIgnoreCase(id)) {
+                return c;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Busca un cliente empresarial por ID
+     */
+    public Cliente buscarClienteEmpresarialPorId(String idBuscado) {
+        if (idBuscado != null && !idBuscado.trim().isEmpty()) {
+            List<Cliente> clientes = obtenerTodosLosClientes();
+            for (Cliente c : clientes) {
+                if (c.getId().equalsIgnoreCase(idBuscado) && c.getTipoCliente()) {
+                    return c;
+                }
+            }
+        }
+        return null;
+    }
+    
+    private boolean guardarClientesEnArchivo(List<Cliente> clientes) {
+        try (FileOutputStream fos = openFileOutput(FILE_CLIENTES, MODE_PRIVATE);
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            
+            oos.writeObject(clientes);
+            return true;
+            
+        } catch (IOException e) {
+            return false;
         }
     }
 }

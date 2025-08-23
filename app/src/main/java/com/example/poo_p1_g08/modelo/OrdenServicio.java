@@ -1,11 +1,13 @@
 package com.example.poo_p1_g08.modelo;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 
-
-public class OrdenServicio {
+public class OrdenServicio implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     public static int contador =1;
     private String codigo;
     private Cliente cliente;

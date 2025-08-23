@@ -10,10 +10,19 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.poo_p1_g08.R;
 import com.example.poo_p1_g08.modelo.Servicio;
-import com.example.poo_p1_g08.utils.DataManager;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorServicio extends AppCompatActivity {
+    private static final String TAG = "ControladorServicio";
+    private static final String FILE_SERVICIOS = "servicios.ser";
+    
     private TextView tvListaServicios;
     private Button btnAgregarServicio, btnEditarServicio, btnCrearServicio, btnActualizarServicio, btnRegresar;
     private ScrollView scrollView, scrollViewAgregarServicio, scrollViewEditarServicio;
@@ -24,9 +33,6 @@ public class ControladorServicio extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vistaservicios);
-
-        // Inicializar la aplicación si es necesario
-        DataManager.inicializarApp(this);
 
         // Inicializar componentes
         inicializarComponentes();
@@ -119,7 +125,7 @@ public class ControladorServicio extends AppCompatActivity {
 
             // Crear y guardar el servicio
             Servicio nuevoServicio = new Servicio(codigo, nombre, precio);
-            if (DataManager.guardarServicio(this, nuevoServicio)) {
+            if (guardarServicio(nuevoServicio)) {
                 Toast.makeText(this, "Servicio creado exitosamente", Toast.LENGTH_LONG).show();
                 regresarALista();
             } else {
@@ -142,13 +148,13 @@ public class ControladorServicio extends AppCompatActivity {
             double nuevoPrecio = Double.parseDouble(etNuevoPrecio.getText().toString().trim());
 
             // Buscar el servicio y actualizarlo
-            Servicio servicio = DataManager.buscarServicioPorCodigo(this, codigo);
+            Servicio servicio = buscarServicioPorCodigo(codigo);
             if (servicio != null) {
                 // Actualizar el precio del servicio
                 servicio.setPrecio(nuevoPrecio);
                 
                 // Guardar el servicio actualizado en el archivo
-                if (DataManager.actualizarServicio(this, servicio)) {
+                if (actualizarServicio(servicio)) {
                     Toast.makeText(this, "Precio actualizado exitosamente", Toast.LENGTH_LONG).show();
                     regresarALista();
                 } else {
@@ -165,7 +171,7 @@ public class ControladorServicio extends AppCompatActivity {
 
     private String generarCodigoServicio() {
         // Generar código automáticamente basado en la cantidad de servicios existentes
-        List<Servicio> servicios = DataManager.obtenerTodosLosServicios(this);
+        List<Servicio> servicios = obtenerTodosLosServicios();
         int siguienteNumero = servicios.size() + 1;
         return String.format("S%03d", siguienteNumero);
     }
@@ -242,7 +248,7 @@ public class ControladorServicio extends AppCompatActivity {
 
     // Método para mostrar la lista de servicios en el TextView
     private void mostrarListaServicios() {
-        List<Servicio> servicios = DataManager.obtenerTodosLosServicios(this);
+        List<Servicio> servicios = obtenerTodosLosServicios();
         
         if (servicios == null || servicios.isEmpty()) {
             tvListaServicios.setText("No hay servicios registrados");
@@ -260,6 +266,95 @@ public class ControladorServicio extends AppCompatActivity {
         }
         
         tvListaServicios.setText(sb.toString());
+    }
+
+    // ==================== PERSISTENCIA DE SERVICIOS ====================
+    
+    /**
+     * Guarda un servicio en el archivo serializado
+     */
+    public boolean guardarServicio(Servicio servicio) {
+        try {
+            List<Servicio> servicios = obtenerTodosLosServicios();
+            
+            // Verificar si ya existe
+            for (Servicio s : servicios) {
+                if (s.getCodigo().equalsIgnoreCase(servicio.getCodigo())) {
+                    return false; // Ya existe
+                }
+            }
+            
+            servicios.add(servicio);
+            return guardarServiciosEnArchivo(servicios);
+            
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Obtiene todos los servicios desde el archivo serializado
+     */
+    @SuppressWarnings("unchecked")
+    public List<Servicio> obtenerTodosLosServicios() {
+        List<Servicio> servicios = new ArrayList<>();
+        
+        try (FileInputStream fis = openFileInput(FILE_SERVICIOS);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            
+            servicios = (List<Servicio>) ois.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            // Archivo no existe o error al leer
+        }
+        
+        return servicios;
+    }
+    
+    /**
+     * Busca un servicio por código
+     */
+    public Servicio buscarServicioPorCodigo(String codigo) {
+        List<Servicio> servicios = obtenerTodosLosServicios();
+        for (Servicio s : servicios) {
+            if (s.getCodigo().equalsIgnoreCase(codigo)) {
+                return s;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Actualiza un servicio existente en el archivo
+     */
+    public boolean actualizarServicio(Servicio servicioActualizado) {
+        try {
+            List<Servicio> servicios = obtenerTodosLosServicios();
+            
+            // Buscar y reemplazar el servicio
+            for (int i = 0; i < servicios.size(); i++) {
+                if (servicios.get(i).getCodigo().equalsIgnoreCase(servicioActualizado.getCodigo())) {
+                    servicios.set(i, servicioActualizado);
+                    return guardarServiciosEnArchivo(servicios);
+                }
+            }
+            
+            return false; // No se encontró el servicio
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    private boolean guardarServiciosEnArchivo(List<Servicio> servicios) {
+        try (FileOutputStream fos = openFileOutput(FILE_SERVICIOS, MODE_PRIVATE);
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            
+            oos.writeObject(servicios);
+            return true;
+            
+        } catch (IOException e) {
+            return false;
+        }
     }
 }
 

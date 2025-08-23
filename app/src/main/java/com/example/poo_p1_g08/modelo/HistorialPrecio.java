@@ -1,6 +1,11 @@
 package com.example.poo_p1_g08.modelo;
+
+import java.io.Serializable;
 import java.time.LocalDate;
-public class HistorialPrecio {
+
+public class HistorialPrecio implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     private double precio;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;

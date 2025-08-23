@@ -16,8 +16,12 @@ import com.example.poo_p1_g08.modelo.Servicio;
 import com.example.poo_p1_g08.modelo.Tecnico;
 import com.example.poo_p1_g08.modelo.Vehiculo;
 import com.example.poo_p1_g08.modelo.DetalledelServicio;
-import com.example.poo_p1_g08.utils.DataManager;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -25,6 +29,12 @@ import java.util.Locale;
 import java.util.ArrayList;
 
 public class ControladorOrden extends AppCompatActivity {
+    private static final String TAG = "ControladorOrden";
+    private static final String FILE_ORDENES = "ordenes.ser";
+    private static final String FILE_CLIENTES = "clientes.ser";
+    private static final String FILE_TECNICOS = "tecnicos.ser";
+    private static final String FILE_SERVICIOS = "servicios.ser";
+    
     private TextView tvListaOrdenes;
     private Button btnCrearOrden, btnRegresar, btnGenerarOrden, btnAgregarServicio;
     private ScrollView scrollView, scrollViewCrearOrden;
@@ -42,9 +52,6 @@ public class ControladorOrden extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vistaordenes);
-
-        // Inicializar la aplicación si es necesario
-        DataManager.inicializarApp(this);
 
         // Inicializar componentes
         inicializarComponentes();
@@ -106,7 +113,7 @@ public class ControladorOrden extends AppCompatActivity {
         StringBuilder datos = new StringBuilder();
         
         // Mostrar clientes disponibles
-        List<Cliente> clientes = DataManager.obtenerTodosLosClientes(this);
+        List<Cliente> clientes = obtenerTodosLosClientes();
         datos.append("CLIENTES:\n");
         for (Cliente cliente : clientes) {
             String tipo = cliente.getTipoCliente() ? "EMPRESARIAL" : "PARTICULAR";
@@ -114,14 +121,14 @@ public class ControladorOrden extends AppCompatActivity {
         }
         
         // Mostrar técnicos disponibles
-        List<Tecnico> tecnicos = DataManager.obtenerTodosLosTecnicos(this);
+        List<Tecnico> tecnicos = obtenerTodosLosTecnicos();
         datos.append("\nTÉCNICOS:\n");
         for (Tecnico tecnico : tecnicos) {
             datos.append(String.format("%s (%s) - %s\n", tecnico.getNombre(), tecnico.getId(), tecnico.getEspecialidad()));
         }
         
         // Mostrar servicios disponibles
-        List<Servicio> servicios = DataManager.obtenerTodosLosServicios(this);
+        List<Servicio> servicios = obtenerTodosLosServicios();
         datos.append("\nSERVICIOS:\n");
         for (Servicio servicio : servicios) {
             datos.append(String.format("%s (%s) - $%.2f\n", servicio.getNombre(), servicio.getCodigo(), servicio.getPrecio()));
@@ -147,7 +154,7 @@ public class ControladorOrden extends AppCompatActivity {
             }
             
             // Buscar el servicio
-            Servicio servicio = DataManager.buscarServicioPorCodigo(this, codigoServicio);
+            Servicio servicio = buscarServicioPorCodigo(codigoServicio);
             if (servicio == null) {
                 return;
             }
@@ -204,13 +211,13 @@ public class ControladorOrden extends AppCompatActivity {
             String tecnicoId = etTecnicoId.getText().toString().trim();
             
             // Buscar cliente
-            Cliente cliente = DataManager.buscarClientePorId(this, clienteId);
+            Cliente cliente = buscarClientePorId(clienteId);
             if (cliente == null) {
                 return;
             }
             
             // Buscar técnico
-            Tecnico tecnico = DataManager.buscarTecnicoPorId(this, tecnicoId);
+            Tecnico tecnico = buscarTecnicoPorId(tecnicoId);
             if (tecnico == null) {
                 return;
             }
@@ -236,7 +243,7 @@ public class ControladorOrden extends AppCompatActivity {
             }
             
             // Guardar orden
-            if (DataManager.guardarOrden(this, nuevaOrden)) {
+            if (guardarOrden(nuevaOrden)) {
                 regresarALista();
             }
             
@@ -286,7 +293,7 @@ public class ControladorOrden extends AppCompatActivity {
 
     // Método para mostrar la lista de órdenes en el TextView
     private void mostrarListaOrdenes() {
-        List<OrdenServicio> ordenes = DataManager.obtenerTodasLasOrdenes(this);
+        List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
         
         if (ordenes == null || ordenes.isEmpty()) {
             tvListaOrdenes.setText("No hay órdenes registradas");
@@ -311,6 +318,136 @@ public class ControladorOrden extends AppCompatActivity {
 
     // Método para obtener la lista de órdenes (requerido por ControladorFacturaEmpresa)
     public List<OrdenServicio> getListaOrdenes() {
-        return DataManager.obtenerTodasLasOrdenes(this);
+        return obtenerTodasLasOrdenes();
+    }
+
+    // ==================== PERSISTENCIA DE ÓRDENES ====================
+    
+    /**
+     * Guarda una orden en el archivo serializado
+     */
+    public boolean guardarOrden(OrdenServicio orden) {
+        try {
+            List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
+            ordenes.add(orden);
+            return guardarOrdenesEnArchivo(ordenes);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Obtiene todas las órdenes desde el archivo serializado
+     */
+    @SuppressWarnings("unchecked")
+    public List<OrdenServicio> obtenerTodasLasOrdenes() {
+        List<OrdenServicio> ordenes = new ArrayList<>();
+        
+        try (FileInputStream fis = openFileInput(FILE_ORDENES);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            
+            ordenes = (List<OrdenServicio>) ois.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            // Archivo no existe o error al leer
+        }
+        
+        return ordenes;
+    }
+    
+    private boolean guardarOrdenesEnArchivo(List<OrdenServicio> ordenes) {
+        try (FileOutputStream fos = openFileOutput(FILE_ORDENES, MODE_PRIVATE);
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            
+            oos.writeObject(ordenes);
+            return true;
+            
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    // ==================== PERSISTENCIA DE CLIENTES ====================
+    
+    @SuppressWarnings("unchecked")
+    private List<Cliente> obtenerTodosLosClientes() {
+        List<Cliente> clientes = new ArrayList<>();
+        
+        try (FileInputStream fis = openFileInput(FILE_CLIENTES);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            
+            clientes = (List<Cliente>) ois.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            // Archivo no existe o error al leer
+        }
+        
+        return clientes;
+    }
+    
+    private Cliente buscarClientePorId(String id) {
+        List<Cliente> clientes = obtenerTodosLosClientes();
+        for (Cliente c : clientes) {
+            if (c.getId().equalsIgnoreCase(id)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    // ==================== PERSISTENCIA DE TÉCNICOS ====================
+    
+    @SuppressWarnings("unchecked")
+    private List<Tecnico> obtenerTodosLosTecnicos() {
+        List<Tecnico> tecnicos = new ArrayList<>();
+        
+        try (FileInputStream fis = openFileInput(FILE_TECNICOS);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            
+            tecnicos = (List<Tecnico>) ois.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            // Archivo no existe o error al leer
+        }
+        
+        return tecnicos;
+    }
+    
+    private Tecnico buscarTecnicoPorId(String id) {
+        List<Tecnico> tecnicos = obtenerTodosLosTecnicos();
+        for (Tecnico t : tecnicos) {
+            if (t.getId().equalsIgnoreCase(id)) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    // ==================== PERSISTENCIA DE SERVICIOS ====================
+    
+    @SuppressWarnings("unchecked")
+    private List<Servicio> obtenerTodosLosServicios() {
+        List<Servicio> servicios = new ArrayList<>();
+        
+        try (FileInputStream fis = openFileInput(FILE_SERVICIOS);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            
+            servicios = (List<Servicio>) ois.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            // Archivo no existe o error al leer
+        }
+        
+        return servicios;
+    }
+    
+    private Servicio buscarServicioPorCodigo(String codigo) {
+        List<Servicio> servicios = obtenerTodosLosServicios();
+        for (Servicio s : servicios) {
+            if (s.getCodigo().equalsIgnoreCase(codigo)) {
+                return s;
+            }
+        }
+        return null;
     }
 }

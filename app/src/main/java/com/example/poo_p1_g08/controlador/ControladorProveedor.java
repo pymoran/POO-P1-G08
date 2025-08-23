@@ -1,84 +1,161 @@
 package com.example.poo_p1_g08.controlador;
+
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.os.Bundle;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.poo_p1_g08.R;
 import com.example.poo_p1_g08.modelo.Proveedor;
-import com.example.poo_p1_g08.utils.DataManager;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorProveedor extends AppCompatActivity {
-    private Button btnAgregarProveedor, btnRegresar, btnGuardarProveedor;
-    private ScrollView scrollViewProveedor, scrollViewListaProveedores;
-    private EditText etIdProveedor, etNombreProveedor, etTelefonoProveedor, etDescripcionProveedor;
+    private static final String TAG = "ControladorProveedor";
+    private static final String FILE_PROVEEDORES = "proveedores.ser";
+    
     private TextView tvProveedores;
-    
-    public ControladorProveedor() {
-        // Constructor vacío
-    }
+    private Button btnAgregarProveedor, btnRegresar, btnGuardarProveedor;
+    private ScrollView scrollViewListaProveedores, scrollViewProveedor;
+    private EditText etIdProveedor, etNombreProveedor, etTelefonoProveedor, etDescripcionProveedor;
 
-    public String agregarProveedor(Proveedor proveedor){
-        // Verificar si ya existe
-        Proveedor existente = DataManager.buscarProveedorPorId(this, proveedor.getId());
-        if (existente != null) {
-            return ">>Proveedor ya existente intente nuevamente";
-        }
-        
-        // Guardar en archivo
-        if (DataManager.guardarProveedor(this, proveedor)) {
-            return "Proveedor agregado satisfactoriamente";
-        } else {
-            return "Error al guardar proveedor";
-        }
-    }
-
-    public List<Proveedor> getListaProveedores(){
-        return DataManager.obtenerTodosLosProveedores(this);
-    }
-
-    public boolean crearOrden(){
-        return true;
-    }
-    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vistaproveedor);
 
-        // Inicializar la aplicación si es necesario
-        DataManager.inicializarApp(this);
+        // Inicializar componentes
+        inicializarComponentes();
 
-        inicializar();
+        // Mostrar lista inicial
         mostrarListaProveedores();
+
+        // Eventos de botones
+        configurarEventos();
     }
 
-    private void inicializar() {
-        btnAgregarProveedor = findViewById(R.id.btnAgregarProveedor);
-        btnRegresar = findViewById(R.id.btnRegresar);
-        
-        scrollViewProveedor = findViewById(R.id.scrollViewProveedor);
-        scrollViewListaProveedores = findViewById(R.id.scrollViewListaProveedores);
+    private void inicializarComponentes() {
+        // TextViews
         tvProveedores = findViewById(R.id.tvProveedores);
         
+        // Botones
+        btnAgregarProveedor = findViewById(R.id.btnAgregarProveedor);
+        btnRegresar = findViewById(R.id.btnRegresar);
+        btnGuardarProveedor = findViewById(R.id.btnGuardarProveedor);
+        
+        // ScrollViews
+        scrollViewListaProveedores = findViewById(R.id.scrollViewListaProveedores);
+        scrollViewProveedor = findViewById(R.id.scrollViewProveedor);
+        
+        // EditTexts
         etIdProveedor = findViewById(R.id.etIdProveedor);
         etNombreProveedor = findViewById(R.id.etNombreProveedor);
         etTelefonoProveedor = findViewById(R.id.etTelefonoProveedor);
         etDescripcionProveedor = findViewById(R.id.etDescripcionProveedor);
-        
-        btnGuardarProveedor = findViewById(R.id.btnGuardarProveedor);
-        btnAgregarProveedor.setOnClickListener(v -> mostrarFormularioProveedor());
-        btnGuardarProveedor.setOnClickListener(v -> guardarProveedor());
-        btnRegresar.setOnClickListener(v -> finish());
     }
-    
+
+    private void configurarEventos() {
+        btnAgregarProveedor.setOnClickListener(v -> mostrarFormularioAgregarProveedor());
+        btnRegresar.setOnClickListener(v -> finish());
+        btnGuardarProveedor.setOnClickListener(v -> crearProveedor());
+    }
+
+    private void mostrarFormularioAgregarProveedor() {
+        // Ocultar lista y mostrar formulario
+        scrollViewListaProveedores.setVisibility(View.GONE);
+        scrollViewProveedor.setVisibility(View.VISIBLE);
+        btnAgregarProveedor.setVisibility(View.GONE);
+        btnGuardarProveedor.setVisibility(View.VISIBLE);
+        
+        // Limpiar campos
+        limpiarCampos();
+    }
+
+    private void crearProveedor() {
+        // Validar campos
+        if (!validarCampos()) {
+            return;
+        }
+
+        try {
+            String id = etIdProveedor.getText().toString().trim();
+            String nombre = etNombreProveedor.getText().toString().trim();
+            String telefono = etTelefonoProveedor.getText().toString().trim();
+            String descripcion = etDescripcionProveedor.getText().toString().trim();
+
+            // Crear proveedor
+            Proveedor proveedor = new Proveedor(id, nombre, telefono, descripcion);
+
+            // Verificar si ya existe
+            Proveedor existente = buscarProveedorPorId(proveedor.getId());
+            if (existente != null) {
+                Toast.makeText(this, "Ya existe un proveedor con ese ID", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Guardar proveedor
+            if (guardarProveedor(proveedor)) {
+                Toast.makeText(this, "Proveedor creado exitosamente", Toast.LENGTH_LONG).show();
+                regresarALista();
+            } else {
+                Toast.makeText(this, "Error al crear el proveedor", Toast.LENGTH_SHORT).show();
+            }
+            
+        } catch (Exception e) {
+            Toast.makeText(this, "Error al crear el proveedor", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean validarCampos() {
+        if (etIdProveedor.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el ID del proveedor", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (etNombreProveedor.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el nombre del proveedor", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (etTelefonoProveedor.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese el teléfono del proveedor", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (etDescripcionProveedor.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Ingrese la descripción del proveedor", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private void limpiarCampos() {
+        etIdProveedor.setText("");
+        etNombreProveedor.setText("");
+        etTelefonoProveedor.setText("");
+        etDescripcionProveedor.setText("");
+    }
+
+    private void regresarALista() {
+        // Mostrar lista y ocultar formulario
+        scrollViewListaProveedores.setVisibility(View.VISIBLE);
+        scrollViewProveedor.setVisibility(View.GONE);
+        btnAgregarProveedor.setVisibility(View.VISIBLE);
+        btnGuardarProveedor.setVisibility(View.GONE);
+        
+        // Actualizar lista
+        mostrarListaProveedores();
+    }
+
+    // Método para mostrar la lista de proveedores en el TextView
     private void mostrarListaProveedores() {
-        List<Proveedor> proveedores = DataManager.obtenerTodosLosProveedores(this);
+        List<Proveedor> proveedores = obtenerTodosLosProveedores();
         
         if (proveedores == null || proveedores.isEmpty()) {
             tvProveedores.setText("No hay proveedores registrados");
@@ -86,57 +163,84 @@ public class ControladorProveedor extends AppCompatActivity {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("PROVEEDORES REGISTRADOS:\n\n");
+        sb.append("LISTA DE PROVEEDORES:\n\n");
         
-        for (Proveedor prov : proveedores) {
-            sb.append(String.format("ID: %s\n", prov.getId()));
-            sb.append(String.format("Nombre: %s\n", prov.getNombre()));
-            sb.append(String.format("Teléfono: %s\n", prov.getTelefono()));
-            sb.append(String.format("Descripción: %s\n", prov.getDescripcion()));
+        for (Proveedor proveedor : proveedores) {
+            sb.append(String.format("ID: %s\n", proveedor.getId()));
+            sb.append(String.format("Nombre: %s\n", proveedor.getNombre()));
+            sb.append(String.format("Teléfono: %s\n", proveedor.getTelefono()));
+            sb.append(String.format("Descripción: %s\n", proveedor.getDescripcion()));
             sb.append("------------------------\n");
         }
         
-        String textoFinal = sb.toString();
-        tvProveedores.setText(textoFinal);
+        tvProveedores.setText(sb.toString());
+    }
+
+    // ==================== PERSISTENCIA DE PROVEEDORES ====================
+    
+    /**
+     * Guarda un proveedor en el archivo serializado
+     */
+    public boolean guardarProveedor(Proveedor proveedor) {
+        try {
+            List<Proveedor> proveedores = obtenerTodosLosProveedores();
+            
+            // Verificar si ya existe
+            for (Proveedor p : proveedores) {
+                if (p.getId().equalsIgnoreCase(proveedor.getId())) {
+                    return false; // Ya existe
+                }
+            }
+            
+            proveedores.add(proveedor);
+            return guardarProveedoresEnArchivo(proveedores);
+            
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Obtiene todos los proveedores desde el archivo serializado
+     */
+    @SuppressWarnings("unchecked")
+    public List<Proveedor> obtenerTodosLosProveedores() {
+        List<Proveedor> proveedores = new ArrayList<>();
         
-        scrollViewListaProveedores.setVisibility(View.VISIBLE);
-        scrollViewProveedor.setVisibility(View.GONE);
-        btnAgregarProveedor.setVisibility(View.VISIBLE);
-    }
-    
-    private void mostrarFormularioProveedor() {
-        scrollViewProveedor.setVisibility(View.VISIBLE);
-        scrollViewListaProveedores.setVisibility(View.GONE);
-        btnAgregarProveedor.setVisibility(View.GONE);
-        limpiarCampos();
-    }
-    
-    private void limpiarCampos() {
-        etIdProveedor.setText("");
-        etNombreProveedor.setText("");
-        etTelefonoProveedor.setText("");
-        etDescripcionProveedor.setText("");
-    }
-    
-    private void guardarProveedor() {
-        String id = etIdProveedor.getText().toString().trim();
-        String nombre = etNombreProveedor.getText().toString().trim();
-        String telefono = etTelefonoProveedor.getText().toString().trim();
-        String descripcion = etDescripcionProveedor.getText().toString().trim();
-        
-        if (id.isEmpty() || nombre.isEmpty() || telefono.isEmpty() || descripcion.isEmpty()) {
-            return;
+        try (FileInputStream fis = openFileInput(FILE_PROVEEDORES);
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            
+            proveedores = (List<Proveedor>) ois.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            // Archivo no existe o error al leer
         }
         
-        Proveedor nuevoProveedor = new Proveedor(id, nombre, telefono, descripcion);
-        String resultado = agregarProveedor(nuevoProveedor);
-        
-        if (resultado.equals("Proveedor agregado satisfactoriamente")) {
-            scrollViewProveedor.setVisibility(View.GONE);
-            scrollViewListaProveedores.setVisibility(View.VISIBLE);
-            btnAgregarProveedor.setVisibility(View.VISIBLE);
-            limpiarCampos();
-            mostrarListaProveedores();
+        return proveedores;
+    }
+    
+    /**
+     * Busca un proveedor por ID
+     */
+    public Proveedor buscarProveedorPorId(String id) {
+        List<Proveedor> proveedores = obtenerTodosLosProveedores();
+        for (Proveedor p : proveedores) {
+            if (p.getId().equalsIgnoreCase(id)) {
+                return p;
+            }
+        }
+        return null;
+    }
+    
+    private boolean guardarProveedoresEnArchivo(List<Proveedor> proveedores) {
+        try (FileOutputStream fos = openFileOutput(FILE_PROVEEDORES, MODE_PRIVATE);
+             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+            
+            oos.writeObject(proveedores);
+            return true;
+            
+        } catch (IOException e) {
+            return false;
         }
     }
 }
