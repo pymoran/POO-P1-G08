@@ -33,9 +33,9 @@
 		<ScrollView
 			android:id="@+id/scrollViewListaTecnicos"
 			android:layout_width="match_parent"
-			android:layout_height="0dp"
-			android:layout_weight="1"
-			android:layout_marginBottom="16dp">
+			android:layout_height="408dp"
+			android:layout_marginBottom="16dp"
+			android:layout_weight="1">
 
 			<TextView
 				android:id="@+id/tvTecnicos"
@@ -132,15 +132,72 @@
 
 	<Button
 		android:id="@+id/btnAgregarTecnico"
+		android:layout_width="381dp"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="8dp"
+		android:text="Agregar Técnico" />
+
+	<Button
+		android:id="@+id/btnEliminarTecnico"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:text="Agregar Técnico"
-		android:layout_marginBottom="8dp" />
+		android:layout_marginBottom="8dp"
+		android:text="Eliminar Técnico" />
 
 	<Button
 		android:id="@+id/btnRegresar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:text="Regresar" />
+
+	<ScrollView
+		android:id="@+id/scrollViewEliminarTecnico"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:visibility="gone">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:orientation="vertical"
+			android:padding="16dp"
+			android:gravity="center_horizontal">
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Eliminar Técnico por ID"
+				android:textSize="18sp"
+				android:textStyle="bold"
+				android:layout_gravity="center"
+				android:layout_marginBottom="16dp" />
+
+			<EditText
+				android:id="@+id/etIdTecnicoEliminar"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="ID del Técnico a Eliminar"
+				android:inputType="text"
+				android:layout_marginBottom="8dp" />
+
+			<Button
+				android:id="@+id/btnConfirmarEliminarTecnico"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="Confirmar Eliminación" />
+
+			<!-- Espaciador para empujar el botón Regresar al final -->
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="0dp"
+				android:layout_weight="1" />
+
+			<Button
+				android:id="@+id/btnRegresarDesdeEliminar"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="Regresar" />
+		</LinearLayout>
+	</ScrollView>
 
 </LinearLayout>

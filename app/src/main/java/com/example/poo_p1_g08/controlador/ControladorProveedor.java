@@ -42,7 +42,9 @@ public class ControladorProveedor extends AppCompatActivity {
         // Eventos de botones
         configurarEventos();
     }
-
+    /**
+     * Variables necesarias para cada accion
+     */
     private void inicializarComponentes() {
         // TextViews
         tvProveedores = findViewById(R.id.tvProveedores);
@@ -63,14 +65,24 @@ public class ControladorProveedor extends AppCompatActivity {
         etDescripcionProveedor = findViewById(R.id.etDescripcionProveedor);
     }
 
+    /**
+     * Configuracion de los eventos mediante los botones en la pantalla
+     */
     private void configurarEventos() {
         btnAgregarProveedor.setOnClickListener(v -> mostrarFormularioAgregarProveedor());
-        btnRegresar.setOnClickListener(v -> finish());
+        btnRegresar.setOnClickListener(v -> {
+            if (scrollViewProveedor.getVisibility() == View.VISIBLE) {
+                regresarALista();
+            } else {
+                finish();
+            }
+        });
         btnGuardarProveedor.setOnClickListener(v -> crearProveedor());
     }
-
+    /**
+     * Permite ocultar y/o mostrar el formulario
+     */
     private void mostrarFormularioAgregarProveedor() {
-        // Ocultar lista y mostrar formulario
         scrollViewListaProveedores.setVisibility(View.GONE);
         scrollViewProveedor.setVisibility(View.VISIBLE);
         btnAgregarProveedor.setVisibility(View.GONE);
@@ -79,7 +91,9 @@ public class ControladorProveedor extends AppCompatActivity {
         // Limpiar campos
         limpiarCampos();
     }
-
+    /**
+     * Crea un nuevo Proveedor con los datos recopilados del scrollViewCliente
+     */
     private void crearProveedor() {
         // Validar campos
         if (!validarCampos()) {
@@ -114,7 +128,9 @@ public class ControladorProveedor extends AppCompatActivity {
             Toast.makeText(this, "Error al crear el proveedor", Toast.LENGTH_SHORT).show();
         }
     }
-
+    /**
+     * Muestra un mensaje de aviso para llenar el dato faltante
+     */
     private boolean validarCampos() {
         if (etIdProveedor.getText().toString().trim().isEmpty()) {
             Toast.makeText(this, "Ingrese el ID del proveedor", Toast.LENGTH_SHORT).show();
@@ -134,14 +150,18 @@ public class ControladorProveedor extends AppCompatActivity {
         }
         return true;
     }
-
+    /**
+     * Restablece los campos del formulario tras guardar el proveedor
+     */
     private void limpiarCampos() {
         etIdProveedor.setText("");
         etNombreProveedor.setText("");
         etTelefonoProveedor.setText("");
         etDescripcionProveedor.setText("");
     }
-
+    /**
+     * Regresa a la vista anterior, en este caso, la lista de proveedores.
+     */
     private void regresarALista() {
         // Mostrar lista y ocultar formulario
         scrollViewListaProveedores.setVisibility(View.VISIBLE);
@@ -153,7 +173,9 @@ public class ControladorProveedor extends AppCompatActivity {
         mostrarListaProveedores();
     }
 
-    // Método para mostrar la lista de proveedores en el TextView
+    /**
+     * Metodo para mostrar la lista de clientes en el TextView
+     */
     private void mostrarListaProveedores() {
         List<Proveedor> proveedores = obtenerTodosLosProveedores();
         
@@ -176,7 +198,6 @@ public class ControladorProveedor extends AppCompatActivity {
         tvProveedores.setText(sb.toString());
     }
 
-    // ==================== PERSISTENCIA DE PROVEEDORES ====================
     
     /**
      * Guarda un proveedor en el archivo serializado
@@ -231,7 +252,9 @@ public class ControladorProveedor extends AppCompatActivity {
         }
         return null;
     }
-    
+    /**
+     * Metodo que realiza la accion de guardar los datos
+     */
     private boolean guardarProveedoresEnArchivo(List<Proveedor> proveedores) {
         try (FileOutputStream fos = openFileOutput(FILE_PROVEEDORES, MODE_PRIVATE);
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {

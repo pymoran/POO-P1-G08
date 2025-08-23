@@ -46,10 +46,12 @@ public class ControladorCliente extends AppCompatActivity {
         // Eventos de botones
         configurarEventos();
     }
-
+    /**
+     * Variables necesarias para cada accion
+     */
     private void inicializarComponentes() {
         // TextViews
-        tvClientes = findViewById(R.id.tvClientes);
+        tvClientes = findViewById(R.id.tvClientes);//Ver el texview
         
         // Botones
         btnAgregarCliente = findViewById(R.id.btnAgregarCliente);
@@ -57,8 +59,8 @@ public class ControladorCliente extends AppCompatActivity {
         btnGuardarCliente = findViewById(R.id.btnGuardarCliente);
         
         // ScrollViews
-        scrollViewListaClientes = findViewById(R.id.scrollViewListaClientes);
-        scrollViewCliente = findViewById(R.id.scrollViewCliente);
+        scrollViewListaClientes = findViewById(R.id.scrollViewListaClientes); // visualizar la lista cliente
+        scrollViewCliente = findViewById(R.id.scrollViewCliente);// formulario para agregar cliente
         
         // EditTexts
         etIdCliente = findViewById(R.id.etIdCliente);
@@ -71,15 +73,24 @@ public class ControladorCliente extends AppCompatActivity {
         rbClienteIndividual = findViewById(R.id.rbClienteIndividual);
         rbClienteEmpresarial = findViewById(R.id.rbClienteEmpresarial);
     }
-
+    /**
+     * Configuracion de los eventos mediante los botones en la pantalla
+     */
     private void configurarEventos() {
         btnAgregarCliente.setOnClickListener(v -> mostrarFormularioAgregarCliente());
-        btnRegresar.setOnClickListener(v -> finish());
+        btnRegresar.setOnClickListener(v -> {
+            if (scrollViewCliente.getVisibility() == View.VISIBLE) {
+                regresarALista();
+            } else {
+                finish();
+            }
+        });
         btnGuardarCliente.setOnClickListener(v -> crearCliente());
     }
-
+    /**
+     * Permite ocultar y/o mostrar el formulario
+     */
     private void mostrarFormularioAgregarCliente() {
-        // Ocultar lista y mostrar formulario
         scrollViewListaClientes.setVisibility(View.GONE);
         scrollViewCliente.setVisibility(View.VISIBLE);
         btnAgregarCliente.setVisibility(View.GONE);
@@ -88,7 +99,9 @@ public class ControladorCliente extends AppCompatActivity {
         // Limpiar campos
         limpiarCampos();
     }
-
+    /**
+     * Crea un nuevo cliente con los datos recopilados del scrollViewCliente
+     */
     private void crearCliente() {
         // Validar campos
         if (!validarCampos()) {
@@ -124,7 +137,9 @@ public class ControladorCliente extends AppCompatActivity {
             Toast.makeText(this, "Error al crear el cliente", Toast.LENGTH_SHORT).show();
         }
     }
-
+    /**
+     * Muestra un mensaje de aviso para llenar el dato faltante
+     */
     private boolean validarCampos() {
         if (etIdCliente.getText().toString().trim().isEmpty()) {
             Toast.makeText(this, "Ingrese el ID del cliente", Toast.LENGTH_SHORT).show();
@@ -144,7 +159,9 @@ public class ControladorCliente extends AppCompatActivity {
         }
         return true;
     }
-
+    /**
+     * Restablece los campos del formulario tras guardar el cliente
+     */
     private void limpiarCampos() {
         etIdCliente.setText("");
         etNombreCliente.setText("");
@@ -152,7 +169,9 @@ public class ControladorCliente extends AppCompatActivity {
         etDireccionCliente.setText("");
         rbClienteIndividual.setChecked(true);
     }
-
+    /**
+     * Regresa a la vista anterior, en este caso, la lista de clientes.
+     */
     private void regresarALista() {
         // Mostrar lista y ocultar formulario
         scrollViewListaClientes.setVisibility(View.VISIBLE);
@@ -164,7 +183,9 @@ public class ControladorCliente extends AppCompatActivity {
         mostrarListaClientes();
     }
 
-    // Método para mostrar la lista de clientes en el TextView
+    /**
+     * Metodo para mostrar la lista de clientes en el TextView
+     */
     private void mostrarListaClientes() {
         List<Cliente> clientes = obtenerTodosLosClientes();
         
@@ -188,24 +209,22 @@ public class ControladorCliente extends AppCompatActivity {
         
         tvClientes.setText(sb.toString());
     }
-
-    // ==================== PERSISTENCIA DE CLIENTES ====================
     
     /**
      * Guarda un cliente en el archivo serializado
      */
-    public boolean guardarCliente(Cliente cliente) {
+    public boolean guardarCliente(Cliente cl) {
         try {
             List<Cliente> clientes = obtenerTodosLosClientes();
             
             // Verificar si ya existe
             for (Cliente c : clientes) {
-                if (c.getId().equalsIgnoreCase(cliente.getId())) {
+                if (c.getId().equalsIgnoreCase(cl.getId())) {
                     return false; // Ya existe
                 }
             }
             
-            clientes.add(cliente);
+            clientes.add(cl);
             return guardarClientesEnArchivo(clientes);
             
         } catch (Exception e) {
@@ -226,7 +245,7 @@ public class ControladorCliente extends AppCompatActivity {
             clientes = (List<Cliente>) ois.readObject();
             
         } catch (IOException | ClassNotFoundException e) {
-            // Archivo no existe o error al leer
+            System.out.println("Archivo no existe o error al leer " + e.getMessage());
         }
         
         return clientes;
@@ -259,7 +278,9 @@ public class ControladorCliente extends AppCompatActivity {
         }
         return null;
     }
-    
+    /**
+     * Metodo que realiza la accion de guardar los datos
+     */
     private boolean guardarClientesEnArchivo(List<Cliente> clientes) {
         try (FileOutputStream fos = openFileOutput(FILE_CLIENTES, MODE_PRIVATE);
              ObjectOutputStream oos = new ObjectOutputStream(fos)) {
