@@ -456,17 +456,22 @@ public class MainActivity extends AppCompatActivity {
 
     public static Map<String, Double> generarReporteMensualTecnicos(int anio, int mes) {
         Map<String, Double> reporte = new HashMap<>();
-        if (ordenes == null) return reporte; // ordenes es la lista global de órdenes
-        for (Orden orden : ordenes) {
-            // Verificar fecha
+        List<Orden> todas = ControladorOrden.obtenerTodasLasOrdenes(); 
+        if (todas == null) return reporte;
+        for (Orden orden : todas) {
+            // Fecha de la orden
             Calendar cal = Calendar.getInstance();
             cal.setTime(orden.getFecha());
             int ordenAnio = cal.get(Calendar.YEAR);
             int ordenMes = cal.get(Calendar.MONTH) + 1; // Calendar.MONTH es 0-based
             if (ordenAnio == anio && ordenMes == mes) {
-                // Sumar por cada técnico en la orden
+                // Técnico de la orden
                 Tecnico tecnico = orden.getTecnico();
-                double monto = orden.getTotal(); // la Orden puede tener total
+                // Calcular monto de la orden
+                double monto = 0.0;
+                for (DetalledelServicio detalle : orden.getDetalles()) {
+                    monto += detalle.getPrecio() * detalle.getCantidad();
+                }
                 if (tecnico != null) {
                     String nombre = tecnico.getNombre();
                     reporte.put(nombre, reporte.getOrDefault(nombre, 0.0) + monto);
