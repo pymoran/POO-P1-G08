@@ -92,7 +92,7 @@ public class ControladorReporteServicio extends AppCompatActivity{
         Map<String, Double> ordenado = ordenarPorValorDesc(datos);
 
         // Tabla formato (fila: servicio | total USD)
-        adapter = new ReporteServicioAdapter(this, ordenado);
+        adapter = new ControladorReporteServicioAdapter(this, ordenado);
         listaServicios.setAdapter(adapter);
 
         Toast.makeText(this, "Reporte generado para " + mes1a12 + "/" + anio, Toast.LENGTH_SHORT).show();
@@ -126,6 +126,7 @@ public class ControladorReporteServicio extends AppCompatActivity{
         Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();*/
     }
 }
+
 
 
 
