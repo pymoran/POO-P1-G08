@@ -41,15 +41,15 @@ public class ControladorReporteTecnicoAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(context)
-                    .inflate(R.layout.item_reporte_tecnico, parent, false);
+                    .inflate(R.layout.vistaitemreportetecnico, parent, false);
         }
 
         TextView tvTecnico = convertView.findViewById(R.id.tvTecnico);
-        TextView tvMonto = convertView.findViewById(R.id.tvMontoTec);
+        TextView tvTotalRecaudado = convertView.findViewById(R.id.tvTotalRecaudado);
 
         Map.Entry<String, Double> item = datos.get(position);
         tvTecnico.setText(item.getKey());
-        tvMonto.setText(String.format("$%.2f", item.getValue()));
+        tvTotalRecaudado.setText(String.format("$%.2f", item.getValue()));
 
         return convertView;
     }
