@@ -454,11 +454,11 @@ public class MainActivity extends AppCompatActivity {
                     );
                     // Verificar año y mes
                     if (fecha.getYear() == anio && fecha.getMonthValue() == mes) {
-                        if (orden.getDetalles() == null) {
+                        if (orden.getDetalle() == null) {
                             Log.e(TAG, "Orden sin detalles: " + orden);
                             continue;
                         }
-                        for (DetalledelServicio detalle : orden.getDetalles()) {
+                        for (DetalledelServicio detalle : orden.getDetalle()) {
                             if (detalle.getServicio() == null) {
                                 Log.e(TAG, "Detalle sin servicio en orden: " + orden);
                                 continue;
@@ -494,7 +494,7 @@ public class MainActivity extends AppCompatActivity {
                 // convertir la fecha String a LocalDate
                 LocalDate fecha = LocalDate.parse(orden.getFecha(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 if (fecha.getYear() == anio && fecha.getMonthValue() == mes) {
-                    for (DetalledelServicio detalle : orden.getDetalles()) {
+                    for (DetalledelServicio detalle : orden.getDetalle()) {
                         String nombreServicio = detalle.getServicio().getNombre();
                         double subtotal = detalle.getSubtotal();
                         reporte.put(nombreServicio, reporte.getOrDefault(nombreServicio, 0.0) + subtotal);
@@ -523,7 +523,7 @@ public class MainActivity extends AppCompatActivity {
                 Tecnico tecnico = orden.getTecnico();
                 // Calcular monto de la orden
                 double monto = 0.0;
-                for (DetalledelServicio detalle : orden.getDetalles()) {
+                for (DetalledelServicio detalle : orden.getDetalle()) {
                     monto += detalle.getPrecio() * detalle.getCantidad();
                 }
                 if (tecnico != null) {
