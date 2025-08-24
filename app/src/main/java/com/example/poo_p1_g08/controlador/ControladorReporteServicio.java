@@ -63,14 +63,14 @@ public class ControladorReporteServicio extends AppCompatActivity{
             }
 
             int mes1a12 = indiceMes + 1; // convertir 0..11 -> 1..12
-            consultarYMostrar(anio, mes1a12);
+            generarReporteServicio(anio, mes1a12);
         });
 
         // Regresar
         btnRegresar.setOnClickListener(v -> finish());
     }
 
-    private void consultarYMostrar(int anio, int mes1a12) {
+    private void generarReporteServicio(int anio, int mes1a12) {
         // Llamada al generador del reporte
         Map<String, Double> datos = MainActivity.generarReporteMensualServicios(anio, mes1a12);
 
@@ -118,6 +118,7 @@ public class ControladorReporteServicio extends AppCompatActivity{
         Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();*/
     }
 }
+
 
 
 
