@@ -41,7 +41,7 @@ public class ControladorReporteServicioAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(context)
-                    .inflate(R.layout.item_reporte_servicio, parent, false);
+                    .inflate(R.layout.vistaitemreporteservicio, parent, false);
         }
 
         TextView tvServicio = convertView.findViewById(R.id.tvServicio);
