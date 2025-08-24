@@ -43,16 +43,16 @@ public class ControladorReporteTecnico extends AppCompatActivity {
         listaTecnicos = findViewById(R.id.listaTecnicos);
         btnRegresar = findViewById(R.id.btnRegresarTec);
 
-        // Cargar meses en spinner
+        // Cargar meses en el spinner
         String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
                 "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
         spinnerMes.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, meses));
 
-        // Consultar
+        // Consultar al usuario el año y mes
         btnConsultar.setOnClickListener(v -> {
             String anioTxt = inputAnio.getText().toString().trim();
             int indiceMes = spinnerMes.getSelectedItemPosition();
-
+            // Verificar si los datos ingresados son los correctos
             if (anioTxt.isEmpty()) {
                 Toast.makeText(this, "Por favor ingrese el año", Toast.LENGTH_SHORT).show();
                 return;
@@ -76,23 +76,24 @@ public class ControladorReporteTecnico extends AppCompatActivity {
             }
 
             int mes1a12 = indiceMes + 1;
+            // Método que genera el reporte
             generarReporteTecnicos(anio, mes1a12);
         });
 
-        // Botón regresar
+        // Botón regresar al menú principal
         btnRegresar.setOnClickListener(v -> finish());
     }
 
     private void generarReporteTecnicos(int anio, int mes1a12) {
         // Generar reporte de técnicos
         Map<String, Double> datos = generarReporteMensualTecnicos(anio, mes1a12);
-
+        // Verificación de datos vacíos
         if (datos == null || datos.isEmpty()) {
             listaTecnicos.setAdapter(null);
             Toast.makeText(this, "No hay datos para " + mes1a12 + "/" + anio, Toast.LENGTH_SHORT).show();
             return;
         }
-
+        // Creación de la tabla con formato tecnico / total recaudado
         ControladorReporteTecnicoAdapter adapter = new ControladorReporteTecnicoAdapter(this, datos);
         listaTecnicos.setAdapter(adapter);
 
@@ -169,6 +170,7 @@ public class ControladorReporteTecnico extends AppCompatActivity {
         return ordenes;
     }
 }
+
 
 
 
