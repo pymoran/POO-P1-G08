@@ -24,7 +24,7 @@ public class ControladorReporteServicio extends AppCompatActivity{
     private Spinner spinnerMes;
     private Button btnConsultar;
     private ListView listaServicios;
-    private ReporteServicioAdapter adapter;
+    private ControladorReporteServicioAdapter adapter;
     private Button btnRegresar;
 
     @Override
@@ -126,6 +126,7 @@ public class ControladorReporteServicio extends AppCompatActivity{
         Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();*/
     }
 }
+
 
 
 
