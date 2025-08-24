@@ -463,7 +463,7 @@ public class MainActivity extends AppCompatActivity {
             Calendar cal = Calendar.getInstance();
             cal.setTime(orden.getFecha());
             int ordenAnio = cal.get(Calendar.YEAR);
-            int ordenMes = cal.get(Calendar.MONTH) + 1; // Calendar.MONTH es 0-based
+            int ordenMes = cal.get(Calendar.MONTH) + 1; // convertir 0..11 -> 1..12
             if (ordenAnio == anio && ordenMes == mes) {
                 // Técnico de la orden
                 Tecnico tecnico = orden.getTecnico();
