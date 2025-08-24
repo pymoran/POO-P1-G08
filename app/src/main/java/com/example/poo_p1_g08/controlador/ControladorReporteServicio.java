@@ -1,4 +1,4 @@
-package com.example.poo_p1_g08;
+package com.example.poo_p1_g08.controlador;
 
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -9,7 +9,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
-import com.example.poo_p1_g08.ReporteServicioAdapter;
 
 public class ControladorReporteServicio extends AppCompatActivity{
 
@@ -119,6 +118,7 @@ public class ControladorReporteServicio extends AppCompatActivity{
         Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();*/
     }
 }
+
 
 
 
