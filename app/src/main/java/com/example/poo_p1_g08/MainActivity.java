@@ -435,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public Map<String, Double> generarReporteMensualServicios(int anio, int mes) {
+    public static Map<String, Double> generarReporteMensualServicios(int anio, int mes) {
     Map<String, Double> reporte = new HashMap<>();
 
     try {
