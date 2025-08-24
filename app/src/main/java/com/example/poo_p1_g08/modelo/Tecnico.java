@@ -11,11 +11,20 @@ public class Tecnico extends Persona implements Serializable {
     
     // Especialidad técnica del profesional
     private String especialidad;
-    
+
+    /**
+     * Retorna la especialidad del técnico
+     */
+    public String getEspecialidad() {
+        return especialidad;
+
+    }
+
     /**
      * Constructor para crear un nuevo técnico
      * @param especialidad Área de especialización del técnico
      */
+
     public Tecnico(String id, String nombre, String telefono, String especialidad) {
         super(id,nombre,telefono);
 
