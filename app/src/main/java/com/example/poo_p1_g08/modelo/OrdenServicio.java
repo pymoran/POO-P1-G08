@@ -5,10 +5,17 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 
+/**
+ * Representa una orden de servicio en el taller automotriz
+ * Es la entidad principal que relaciona cliente, vehículo, técnico y servicios
+ */
 public class OrdenServicio implements Serializable {
     private static final long serialVersionUID = 1L;
     
+    // Contador estático para generar códigos únicos de orden
     public static int contador =1;
+    
+    // Información de la orden
     private String codigo;
     private Cliente cliente;
     private Vehiculo vehiculo;
@@ -19,6 +26,10 @@ public class OrdenServicio implements Serializable {
 
 
 
+    /**
+     * Constructor para crear una nueva orden de servicio
+     * @param fecha Fecha de creación de la orden
+     */
     public OrdenServicio(Cliente cliente, Vehiculo vehiculo,Tecnico tecnico, String fecha) {
         this.codigo = generarCodigo();
         this.cliente = cliente;
@@ -29,9 +40,17 @@ public class OrdenServicio implements Serializable {
         this.tecnico = tecnico;
     }
 
+    /**
+     * Genera un código único para la orden (ORD001, ORD002, etc.)
+     */
     private String generarCodigo(){
         return "ORD" + String.format("%03d", contador ++);
     }
+    
+    /**
+     * Agrega un servicio al detalle de la orden y actualiza el total
+     * @param cantidad Cantidad del servicio solicitado
+     */
     public void agregarDetalle(Servicio servicio, int cantidad) {
         DetalledelServicio ds = new DetalledelServicio(servicio,cantidad);
         detalle.add(ds);

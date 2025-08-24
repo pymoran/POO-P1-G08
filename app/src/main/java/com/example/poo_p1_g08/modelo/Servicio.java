@@ -6,13 +6,23 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+/**
+ * Representa un servicio ofrecido por el taller automotriz
+ * Mantiene un historial de cambios de precios para auditoría
+ */
 public class Servicio implements Serializable {
     private static final long serialVersionUID = 1L;
     
+    // Información básica del servicio
     private String codigo, nombre;
     private double precio;
+    // Historial de cambios de precio para auditoría
     private ArrayList<HistorialPrecio> historialPrecios = new ArrayList<>();
 
+    /**
+     * Constructor que inicializa el servicio con su primer precio
+     * @param precioInicial Precio inicial del servicio
+     */
     public Servicio(String codigo, String nombre, double precioInicial) {
         this.codigo = codigo;
         this.nombre = nombre;
@@ -23,6 +33,10 @@ public class Servicio implements Serializable {
         }
     }
 
+    /**
+     * Actualiza el precio del servicio y registra el cambio en el historial
+     * @param nuevoPrecio Nuevo precio a establecer
+     */
     public void setPrecio(double nuevoPrecio) {
         if (!historialPrecios.isEmpty()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

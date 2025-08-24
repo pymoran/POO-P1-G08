@@ -6,17 +6,28 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Representa una factura mensual para clientes empresariales
+ * Agrupa múltiples órdenes de servicio y aplica costo de prioridad
+ */
 public class FacturaEmpresa implements Serializable {
     private static final long serialVersionUID = 1L;
     
+    // Información de la factura
     private Cliente cliente;
     private int mes;
     private int año;
     private String fechaCreacion;
     private ArrayList<OrdenServicio> ordenes;
     private double totalServicios;
+    // Costo adicional por servicio prioritario para empresas
     private static final double COSTO_PRIORIDAD = 50.0;
 
+    /**
+     * Constructor para crear una factura mensual
+     * @param mes Mes de facturación (1-12)
+     * @param año Año de facturación
+     */
     public FacturaEmpresa(Cliente cliente, int mes, int año) {
         this.cliente = cliente;
         this.mes = mes;
@@ -28,11 +39,17 @@ public class FacturaEmpresa implements Serializable {
         this.totalServicios = 0.0;
     }
 
+    /**
+     * Agrega una orden de servicio a la factura y actualiza el total
+     */
     public void agregarOrden(OrdenServicio orden) {
         ordenes.add(orden);
         totalServicios += orden.getTotal();
     }
 
+    /**
+     * Calcula el total de la factura incluyendo costo de prioridad para empresas
+     */
     public double getTotalFactura() {
         return cliente.getTipoCliente()
                 ? totalServicios + COSTO_PRIORIDAD
@@ -73,6 +90,9 @@ public class FacturaEmpresa implements Serializable {
         return COSTO_PRIORIDAD;
     }
 
+    /**
+     * Retorna el nombre del mes en español
+     */
     public String getNombreMes() {
         String[] meses = {"", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
                 "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
