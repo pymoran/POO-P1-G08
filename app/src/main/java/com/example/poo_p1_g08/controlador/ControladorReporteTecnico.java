@@ -8,6 +8,10 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.poo_p1_g08.MainActivity;
+import com.example.poo_p1_g08.R;
+
 import java.util.Map;
 
 public class ControladorReporteTecnico extends AppCompatActivity {

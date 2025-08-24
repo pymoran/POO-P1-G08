@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.example.poo_p1_g08.R;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

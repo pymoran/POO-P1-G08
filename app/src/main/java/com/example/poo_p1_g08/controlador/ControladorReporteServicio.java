@@ -8,7 +8,15 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.poo_p1_g08.MainActivity;
+import com.example.poo_p1_g08.R;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ControladorReporteServicio extends AppCompatActivity{
 
