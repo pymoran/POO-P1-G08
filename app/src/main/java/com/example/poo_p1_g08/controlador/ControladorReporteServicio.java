@@ -12,10 +12,12 @@ import java.util.ArrayList;
 
 public class ControladorReporteServicio extends AppCompatActivity{
 
-    EditText inputAnio;
-    Spinner spinnerMes;
-    Button btnConsultar;
-    ListView listaServicios;
+    private EditText inputAnio;
+    private Spinner spinnerMes;
+    private Button btnConsultar;
+    private ListView listaServicios;
+    private ReporteServicioAdapter adapter;
+    private Button btnRegresar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,36 +28,80 @@ public class ControladorReporteServicio extends AppCompatActivity{
         spinnerMes = findViewById(R.id.spinnerMes);
         btnConsultar = findViewById(R.id.btnConsultar);
         listaServicios = findViewById(R.id.listaServicios);
+        btnRegresar = findViewById(R.id.btnRegresar);
 
-        //Lista de meses
+        // Cargar meses en el spinner
         String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
                 "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
         spinnerMes.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, meses));
-
+        
+        // Consultar
         btnConsultar.setOnClickListener(v -> {
-            String anio = inputAnio.getText().toString().trim();
-            int mesSeleccionado = spinnerMes.getSelectedItemPosition();
+            String anioTxt = inputAnio.getText().toString().trim();
+            int indiceMes = spinnerMes.getSelectedItemPosition();
 
-            if (anio.isEmpty()) {
+            // Validaciones
+            if (anioTxt.isEmpty()) {
                 Toast.makeText(this, "Por favor ingrese el año", Toast.LENGTH_SHORT).show();
                 return;
             }
+            int anio;
+            try {
+                anio = Integer.parseInt(anioTxt);
+                if (anio < 1900 || anio > 3000) {
+                    Toast.makeText(this, "Año inválido", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "El año debe ser numérico", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            if (mesSeleccionado < 0) {
+            if (indiceMes < 0) {
                 Toast.makeText(this, "Por favor seleccione un mes", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            generarReporteServicios(anio, mesSeleccionado);
+            int mes1a12 = indiceMes + 1; // convertir 0..11 -> 1..12
+            consultarYMostrar(anio, mes1a12);
+            //generarReporteServicios(anio, mesSeleccionado);
         });
 
-        // Botón de regreso
-        Button btnRegresar = findViewById(R.id.btnRegresar);
+        // Regresar
         btnRegresar.setOnClickListener(v -> finish());
     }
 
-    private void generarReporteServicios(String anio, int mes) {
-        String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
+    private void generarReporteServicios(int anio, int mes1a12) {
+        // Llamada al generador del reporte
+        Map<String, Double> datos = MainActivity.generarReporteMensualServicios(anio, mes1a12);
+
+        if (datos == null || datos.isEmpty()) {
+            listaServicios.setAdapter(null);
+            Toast.makeText(this, "No hay datos para " + mes1a12 + "/" + anio, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Ordenar por monto descendente
+        Map<String, Double> ordenado = ordenarPorValorDesc(datos);
+
+        // Tabla formato (fila: servicio | total USD)
+        adapter = new ReporteServicioAdapter(this, ordenado);
+        listaServicios.setAdapter(adapter);
+
+        Toast.makeText(this, "Reporte generado para " + mes1a12 + "/" + anio, Toast.LENGTH_SHORT).show();
+    }
+
+    // Ordena un mapa por valor (Double) descendente y conserva el orden
+    private Map<String, Double> ordenarPorValorDesc(Map<String, Double> mapa) {
+        List<Map.Entry<String, Double>> lista = new ArrayList<>(mapa.entrySet());
+        Collections.sort(lista, (a, b) -> Double.compare(b.getValue(), a.getValue()));
+
+        Map<String, Double> linked = new LinkedHashMap<>();
+        for (Map.Entry<String, Double> e : lista) {
+            linked.put(e.getKey(), e.getValue());
+        }
+        return linked;
+        /*String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
                 "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
 
         ArrayList<String> datos = new ArrayList<>();
@@ -70,7 +116,8 @@ public class ControladorReporteServicio extends AppCompatActivity{
 
         listaServicios.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, datos));
 
-        Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();*/
     }
 }
+
 
