@@ -1,4 +1,4 @@
-package com.example.poo_p1_g08;
+package com.example.poo_p1_g08.controlador;
 
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -8,14 +8,15 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import java.util.ArrayList;
+import java.util.Map;
 
 public class ControladorReporteTecnico extends AppCompatActivity {
 
-    EditText inputAnio;
-    Spinner spinnerMes;
-    Button btnConsultar;
-    ListView listaTecnicos;
+    private EditText inputAnio;
+    private Spinner spinnerMes;
+    private Button btnConsultar;
+    private ListView listaTecnicos;
+    private Button btnRegresar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,36 +27,63 @@ public class ControladorReporteTecnico extends AppCompatActivity {
         spinnerMes = findViewById(R.id.spinnerMesTec);
         btnConsultar = findViewById(R.id.btnConsultarTec);
         listaTecnicos = findViewById(R.id.listaTecnicos);
+        btnRegresar = findViewById(R.id.btnRegresarTec);
 
-        //Lista de meses
+        // Cargar meses en spinner
         String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
                 "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
         spinnerMes.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, meses));
 
+        // Consultar
         btnConsultar.setOnClickListener(v -> {
-            String anio = inputAnio.getText().toString().trim();
-            int mesSeleccionado = spinnerMes.getSelectedItemPosition();
+            String anioTxt = inputAnio.getText().toString().trim();
+            int indiceMes = spinnerMes.getSelectedItemPosition();
 
-            if (anio.isEmpty()) {
+            if (anioTxt.isEmpty()) {
                 Toast.makeText(this, "Por favor ingrese el año", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (mesSeleccionado < 0) {
+            int anio;
+            try {
+                anio = Integer.parseInt(anioTxt);
+                if (anio < 1900 || anio > 3000) {
+                    Toast.makeText(this, "Año inválido", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "El año debe ser numérico", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (indiceMes < 0) {
                 Toast.makeText(this, "Por favor seleccione un mes", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            generarReporteTecnicos(anio, mesSeleccionado);
+            int mes1a12 = indiceMes + 1;
+            generarReporteTecnicos(anio, mes1a12);
         });
 
-        // Botón de regreso
-        Button btnRegresarTec = findViewById(R.id.btnRegresarTec);
-        btnRegresarTec.setOnClickListener(v -> finish());
+        // Botón regresar
+        btnRegresar.setOnClickListener(v -> finish());
     }
 
-    private void generarReporteTecnicos(String anio, int mes) {
-        String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
+    private void generarReporteTecnicos(int anio, int mes1a12) {
+        // Aquí debería ir tu lógica real
+        Map<String, Double> datos = MainActivity.generarReporteMensualTecnicos(anio, mes1a12);
+
+        if (datos == null || datos.isEmpty()) {
+            listaTecnicos.setAdapter(null);
+            Toast.makeText(this, "No hay datos para " + mes1a12 + "/" + anio, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ReporteTecnicoAdapter adapter = new ReporteTecnicoAdapter(this, datos);
+        listaTecnicos.setAdapter(adapter);
+
+        Toast.makeText(this, "Reporte generado para " + mes1a12 + "/" + anio, Toast.LENGTH_SHORT).show();
+        /*String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
                 "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
 
         ArrayList<String> datos = new ArrayList<>();
@@ -70,7 +98,8 @@ public class ControladorReporteTecnico extends AppCompatActivity {
 
         listaTecnicos.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, datos));
 
-        Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();*/
     }
 }
+
 
