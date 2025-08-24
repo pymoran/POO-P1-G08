@@ -29,8 +29,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -430,4 +434,31 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
     }
+
+    public Map<String, Double> generarReporteMensualServicios(int anio, int mes) {
+    Map<String, Double> reporte = new HashMap<>();
+
+    try {
+        List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
+
+        for (OrdenServicio orden : ordenes) {
+            // convertir la fecha String a LocalDate
+            LocalDate fecha = LocalDate.parse(orden.getFecha(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+            if (fecha.getYear() == anio && fecha.getMonthValue() == mes) {
+                for (DetalledelServicio detalle : orden.getDetalles()) {
+                    String nombreServicio = detalle.getServicio().getNombre();
+                    double subtotal = detalle.getSubtotal();
+
+                    reporte.put(nombreServicio, reporte.getOrDefault(nombreServicio, 0.0) + subtotal);
+                }
+            }
+        }
+
+    } catch (Exception e) {
+        Log.e(TAG, "Error generando reporte mensual: " + e.getMessage(), e);
+    }
+
+    return reporte;
+}
 }
