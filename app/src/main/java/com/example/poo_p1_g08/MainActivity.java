@@ -418,13 +418,10 @@ public class MainActivity extends AppCompatActivity {
         try {
             List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
             ordenes.add(orden);
-            
             try (FileOutputStream fos = openFileOutput(FILE_ORDENES, Context.MODE_PRIVATE);
-                 ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-                
+                ObjectOutputStream oos = new ObjectOutputStream(fos)) {
                 oos.writeObject(ordenes);
                 return true;
-                
             } catch (IOException e) {
                 Log.e(TAG, "Error al guardar órdenes en archivo: " + e.getMessage(), e);
                 return false;
@@ -436,29 +433,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static Map<String, Double> generarReporteMensualServicios(int anio, int mes) {
-    Map<String, Double> reporte = new HashMap<>();
+        Map<String, Double> reporte = new HashMap<>();
+        try {
+            List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
+            for (OrdenServicio orden : ordenes) {
+                // convertir la fecha String a LocalDate
+                LocalDate fecha = LocalDate.parse(orden.getFecha(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                if (fecha.getYear() == anio && fecha.getMonthValue() == mes) {
+                    for (DetalledelServicio detalle : orden.getDetalles()) {
+                        String nombreServicio = detalle.getServicio().getNombre();
+                        double subtotal = detalle.getSubtotal();
+                        reporte.put(nombreServicio, reporte.getOrDefault(nombreServicio, 0.0) + subtotal);
+                    }
+                }
+            }
 
-    try {
-        List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
+        } catch (Exception e) {
+            Log.e(TAG, "Error generando reporte mensual: " + e.getMessage(), e);
+        }
+        return reporte;
+    }
 
-        for (OrdenServicio orden : ordenes) {
-            // convertir la fecha String a LocalDate
-            LocalDate fecha = LocalDate.parse(orden.getFecha(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-
-            if (fecha.getYear() == anio && fecha.getMonthValue() == mes) {
-                for (DetalledelServicio detalle : orden.getDetalles()) {
-                    String nombreServicio = detalle.getServicio().getNombre();
-                    double subtotal = detalle.getSubtotal();
-
-                    reporte.put(nombreServicio, reporte.getOrDefault(nombreServicio, 0.0) + subtotal);
+    public static Map<String, Double> generarReporteMensualTecnicos(int anio, int mes) {
+        Map<String, Double> reporte = new HashMap<>();
+        if (ordenes == null) return reporte; // ordenes es la lista global de órdenes
+        for (Orden orden : ordenes) {
+            // Verificar fecha
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(orden.getFecha());
+            int ordenAnio = cal.get(Calendar.YEAR);
+            int ordenMes = cal.get(Calendar.MONTH) + 1; // Calendar.MONTH es 0-based
+            if (ordenAnio == anio && ordenMes == mes) {
+                // Sumar por cada técnico en la orden
+                Tecnico tecnico = orden.getTecnico();
+                double monto = orden.getTotal(); // la Orden puede tener total
+                if (tecnico != null) {
+                    String nombre = tecnico.getNombre();
+                    reporte.put(nombre, reporte.getOrDefault(nombre, 0.0) + monto);
                 }
             }
         }
-
-    } catch (Exception e) {
-        Log.e(TAG, "Error generando reporte mensual: " + e.getMessage(), e);
+        return reporte;
     }
-
-    return reporte;
-}
 }
