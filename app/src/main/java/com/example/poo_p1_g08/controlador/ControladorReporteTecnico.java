@@ -9,10 +9,20 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.poo_p1_g08.MainActivity;
 import com.example.poo_p1_g08.R;
+import com.example.poo_p1_g08.modelo.OrdenServicio;
+import com.example.poo_p1_g08.modelo.DetalledelServicio;
+import com.example.poo_p1_g08.modelo.Tecnico;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 public class ControladorReporteTecnico extends AppCompatActivity {
 
@@ -74,8 +84,8 @@ public class ControladorReporteTecnico extends AppCompatActivity {
     }
 
     private void generarReporteTecnicos(int anio, int mes1a12) {
-        // Aquí debería ir tu lógica real
-        Map<String, Double> datos = MainActivity.generarReporteMensualTecnicos(anio, mes1a12);
+        // Generar reporte de técnicos
+        Map<String, Double> datos = generarReporteMensualTecnicos(anio, mes1a12);
 
         if (datos == null || datos.isEmpty()) {
             listaTecnicos.setAdapter(null);
@@ -87,22 +97,76 @@ public class ControladorReporteTecnico extends AppCompatActivity {
         listaTecnicos.setAdapter(adapter);
 
         Toast.makeText(this, "Reporte generado para " + mes1a12 + "/" + anio, Toast.LENGTH_SHORT).show();
-        /*String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
-                "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
+    }
 
-        ArrayList<String> datos = new ArrayList<>();
-        datos.add("=== REPORTE DE TÉCNICOS - " + meses[mes] + " " + anio + " ===");
-        datos.add("");
-        datos.add("No hay datos disponibles para el período seleccionado.");
-        datos.add("");
-        datos.add("Para generar reportes reales, primero debe:");
-        datos.add("• Registrar técnicos en el sistema");
-        datos.add("• Asignar técnicos a órdenes de servicio");
-        datos.add("• Completar las atenciones");
+    /**
+     * Genera reporte de técnicos por mes y año
+     */
+    private Map<String, Double> generarReporteMensualTecnicos(int anio, int mes) {
+        Map<String, Double> reporte = new HashMap<>();
+        try {
+            List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
+            if (ordenes == null || ordenes.isEmpty()) {
+                return reporte;
+            }
+            
+            for (OrdenServicio orden : ordenes) {
+                try {
+                    // Validar que la fecha no sea nula ni vacía
+                    if (orden.getFecha() == null || orden.getFecha().trim().isEmpty()) {
+                        continue; // saltar esta orden
+                    }
+                    // Parsear la fecha
+                    LocalDate fecha = LocalDate.parse(
+                            orden.getFecha().trim(),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    );
+                    // Verificar año y mes
+                    if (fecha.getYear() == anio && fecha.getMonthValue() == mes) {
+                        // Técnico de la orden
+                        Tecnico tecnico = orden.getTecnico();
+                        if (tecnico == null) {
+                            continue;
+                        }
+                        // Calcular monto de la orden
+                        double monto = 0.0;
+                        if (orden.getDetalle() != null) {
+                            for (DetalledelServicio detalle : orden.getDetalle()) {
+                                if (detalle != null) {
+                                    monto += detalle.getSubtotal();
+                                }
+                            }
+                        }
+                        String nombre = tecnico.getNombre();
+                        reporte.put(nombre, reporte.getOrDefault(nombre, 0.0) + monto);
+                    }
+                } catch (Exception eFecha) {
+                    // Continuar con la siguiente orden si hay error en la fecha
+                }
+            }
+        } catch (Exception e) {
+            // Manejar error general
+        }
+        return reporte;
+    }
 
-        listaTecnicos.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, datos));
-
-        Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();*/
+    /**
+     * Obtiene todas las órdenes desde el archivo
+     */
+    @SuppressWarnings("unchecked")
+    private List<OrdenServicio> obtenerTodasLasOrdenes() {
+        List<OrdenServicio> ordenes = new ArrayList<>();
+        
+        try (FileInputStream fis = openFileInput("ordenes.ser");
+             ObjectInputStream ois = new ObjectInputStream(fis)) {
+            
+            ordenes = (List<OrdenServicio>) ois.readObject();
+            
+        } catch (IOException | ClassNotFoundException e) {
+            // Archivo no encontrado o error al leer
+        }
+        
+        return ordenes;
     }
 }
 

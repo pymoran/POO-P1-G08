@@ -433,7 +433,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public static Map<String, Double> generarReporteMensualServicios(int anio, int mes) {
+    public Map<String, Double> generarReporteMensualServicios(int anio, int mes) {
         Map<String, Double> reporte = new HashMap<>();
         try {
             List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
@@ -486,52 +486,57 @@ public class MainActivity extends AppCompatActivity {
         }
         return reporte;
     }
-
-    /*public static Map<String, Double> generarReporteMensualServicios(int anio, int mes) {
+    public Map<String, Double> generarReporteMensualTecnicos(int anio, int mes) {
         Map<String, Double> reporte = new HashMap<>();
         try {
             List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
+            if (ordenes == null || ordenes.isEmpty()) {
+                Log.w(TAG, "No existen órdenes registradas.");
+                return reporte;
+            }
             for (OrdenServicio orden : ordenes) {
-                // convertir la fecha String a LocalDate
-                LocalDate fecha = LocalDate.parse(orden.getFecha(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                if (fecha.getYear() == anio && fecha.getMonthValue() == mes) {
-                    for (DetalledelServicio detalle : orden.getDetalle()) {
-                        String nombreServicio = detalle.getServicio().getNombre();
-                        double subtotal = detalle.getSubtotal();
-                        reporte.put(nombreServicio, reporte.getOrDefault(nombreServicio, 0.0) + subtotal);
+                try {
+                    // Validar que la fecha no sea nula ni vacía
+                    if (orden.getFecha() == null || orden.getFecha().trim().isEmpty()) {
+                        Log.e(TAG, "Orden con fecha nula/vacía: " + orden);
+                        continue; // saltar esta orden
                     }
+                    // Parsear la fecha
+                    LocalDate fecha = LocalDate.parse(
+                            orden.getFecha().trim(),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    );
+                    // Verificar año y mes
+                    if (fecha.getYear() == anio && fecha.getMonthValue() == mes) {
+                        // Técnico de la orden
+                        Tecnico tecnico = orden.getTecnico();
+                        if (tecnico == null) {
+                            Log.e(TAG, "Orden sin técnico: " + orden);
+                            continue;
+                        }
+                        // Calcular monto de la orden
+                        double monto = 0.0;
+                        if (orden.getDetalle() != null) {
+                            for (DetalledelServicio detalle : orden.getDetalle()) {
+                                if (detalle != null) {
+                                    monto += detalle.getSubtotal();
+                                }
+                            }
+                        }
+                        String nombre = tecnico.getNombre();
+                        reporte.put(nombre, reporte.getOrDefault(nombre, 0.0) + monto);
+                    }
+                } catch (Exception eFecha) {
+                    Log.e(TAG, "Error procesando orden con fecha: " + orden.getFecha(), eFecha);
                 }
             }
-
         } catch (Exception e) {
-            Log.e(TAG, "Error generando reporte mensual: " + e.getMessage(), e);
+            Log.e(TAG, "Error generando reporte mensual de técnicos: " + e.getMessage(), e);
         }
-        return reporte;
-    }*/
-
-    public static Map<String, Double> generarReporteMensualTecnicos(int anio, int mes) {
-        Map<String, Double> reporte = new HashMap<>();
-        List<Orden> todas = ControladorOrden.obtenerTodasLasOrdenes(); 
-        if (todas == null) return reporte;
-        for (Orden orden : todas) {
-            // Fecha de la orden
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(orden.getFecha());
-            int ordenAnio = cal.get(Calendar.YEAR);
-            int ordenMes = cal.get(Calendar.MONTH) + 1; // convertir 0..11 -> 1..12
-            if (ordenAnio == anio && ordenMes == mes) {
-                // Técnico de la orden
-                Tecnico tecnico = orden.getTecnico();
-                // Calcular monto de la orden
-                double monto = 0.0;
-                for (DetalledelServicio detalle : orden.getDetalle()) {
-                    monto += detalle.getPrecio() * detalle.getCantidad();
-                }
-                if (tecnico != null) {
-                    String nombre = tecnico.getNombre();
-                    reporte.put(nombre, reporte.getOrDefault(nombre, 0.0) + monto);
-                }
-            }
+        if (reporte.isEmpty()) {
+            Log.w(TAG, "No se generaron datos para técnicos en " + mes + "/" + anio);
+        } else {
+            Log.i(TAG, "Reporte de técnicos generado con " + reporte.size() + " técnicos.");
         }
         return reporte;
     }
