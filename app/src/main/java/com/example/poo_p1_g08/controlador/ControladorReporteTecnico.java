@@ -83,7 +83,7 @@ public class ControladorReporteTecnico extends AppCompatActivity {
             return;
         }
 
-        ReporteTecnicoAdapter adapter = new ReporteTecnicoAdapter(this, datos);
+        ControladorReporteTecnicoAdapter adapter = new ControladorReporteTecnicoAdapter(this, datos);
         listaTecnicos.setAdapter(adapter);
 
         Toast.makeText(this, "Reporte generado para " + mes1a12 + "/" + anio, Toast.LENGTH_SHORT).show();
@@ -105,5 +105,6 @@ public class ControladorReporteTecnico extends AppCompatActivity {
         Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();*/
     }
 }
+
 
 
