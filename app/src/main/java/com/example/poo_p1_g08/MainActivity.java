@@ -14,8 +14,8 @@ import com.example.poo_p1_g08.controlador.ControladorOrden;
 import com.example.poo_p1_g08.controlador.ControladorProveedor;
 import com.example.poo_p1_g08.controlador.ControladorServicio;
 import com.example.poo_p1_g08.controlador.ControladorTecnico;
-import com.example.poo_p1_g08.ReporteServicioActivity;
-import com.example.poo_p1_g08.ReporteTecnicoActivity;
+import com.example.poo_p1_g08.controlador.ControladorReporteServicio;
+import com.example.poo_p1_g08.controlador.ControladorReporteTecnico;
 import com.example.poo_p1_g08.modelo.Cliente;
 import com.example.poo_p1_g08.modelo.Proveedor;
 import com.example.poo_p1_g08.modelo.Servicio;
@@ -89,12 +89,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Abrir vista reporte de ingresos por servicios
         btnReporteServicios.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, ReporteServicioActivity.class));
+            startActivity(new Intent(MainActivity.this, ControladorReporteServicio.class));
         });
 
         // Abrir vista reporte de ateciones por tecnicos
         btnReporteTecnicos.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, ReporteTecnicoActivity.class));
+            startActivity(new Intent(MainActivity.this, ControladorReporteTecnico.class));
         });
     }
 
