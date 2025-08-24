@@ -17,7 +17,7 @@ public class ControladorReporteTecnicoAdapter extends BaseAdapter {
     private Context context;
     private List<Map.Entry<String, Double>> datos;
 
-    public ReporteTecnicoAdapter(Context context, Map<String, Double> mapa) {
+    public ControladorReporteTecnicoAdapter(Context context, Map<String, Double> mapa) {
         this.context = context;
         this.datos = new ArrayList<>(mapa.entrySet());
     }
