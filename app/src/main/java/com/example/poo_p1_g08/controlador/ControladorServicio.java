@@ -77,7 +77,14 @@ public class ControladorServicio extends AppCompatActivity {
         btnEditarServicio.setOnClickListener(v -> mostrarFormularioEditarServicio());
         btnCrearServicio.setOnClickListener(v -> crearServicio());
         btnActualizarServicio.setOnClickListener(v -> actualizarServicio());
-        btnRegresar.setOnClickListener(v -> finish());
+        btnRegresar.setOnClickListener(v -> {
+            if (scrollViewAgregarServicio.getVisibility() == View.VISIBLE || 
+                scrollViewEditarServicio.getVisibility() == View.VISIBLE) {
+                regresarALista();
+            } else {
+                finish();
+            }
+        });
     }
 
     private void mostrarFormularioAgregarServicio() {

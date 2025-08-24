@@ -70,7 +70,13 @@ public class ControladorFacturaEmpresa extends AppCompatActivity {
     private void configurarEventos() {
         btnGenerarFactura.setOnClickListener(v -> mostrarFormularioFactura());
         btnCrearFactura.setOnClickListener(v -> generarFactura());
-        btnRegresar.setOnClickListener(v -> finish());
+        btnRegresar.setOnClickListener(v -> {
+            if (scrollViewGenerarFactura.getVisibility() == View.VISIBLE) {
+                regresarALista();
+            } else {
+                finish();
+            }
+        });
     }
 
     private void mostrarFormularioFactura() {

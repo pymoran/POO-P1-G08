@@ -87,7 +87,13 @@ public class ControladorOrden extends AppCompatActivity {
 
     private void configurarEventos() {
         btnCrearOrden.setOnClickListener(v -> mostrarVistaCrearOrden());
-        btnRegresar.setOnClickListener(v -> finish());
+        btnRegresar.setOnClickListener(v -> {
+            if (scrollViewCrearOrden.getVisibility() == View.VISIBLE) {
+                regresarALista();
+            } else {
+                finish();
+            }
+        });
         btnGenerarOrden.setOnClickListener(v -> generarOrden());
         btnAgregarServicio.setOnClickListener(v -> agregarServicioTemporal());
     }
