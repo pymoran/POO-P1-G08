@@ -1,5 +1,4 @@
-//package com.example.poo_p1_g08;
-package espol.poo;
+package com.example.poo_p1_g08;
 
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -74,3 +73,4 @@ public class ControladorReporteServicio extends AppCompatActivity{
         Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();
     }
 }
+
