@@ -17,8 +17,8 @@
         <activity android:name=".controlador.ControladorServicio" />
         <activity android:name=".controlador.ControladorOrden" />
         <activity android:name=".controlador.ControladorFacturaEmpresa" />
-        <activity android:name=".ReporteServicioActivity" />
-        <activity android:name=".ReporteTecnicoActivity" />
+        <activity android:name=".controlador.ControladorReporteServicio" />
+        <activity android:name=".controlador.ControladorReporteTecnico" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
