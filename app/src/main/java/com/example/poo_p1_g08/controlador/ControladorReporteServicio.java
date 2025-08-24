@@ -27,7 +27,7 @@ public class ControladorReporteServicio extends AppCompatActivity{
         inputAnio = findViewById(R.id.inputAnio);
         spinnerMes = findViewById(R.id.spinnerMes);
         btnConsultar = findViewById(R.id.btnConsultar);
-        listaServicios = findViewById(R.id.listaServicios);
+        listaServicios = findViewById(R.id.listaReporteServicios);
         btnRegresar = findViewById(R.id.btnRegresar);
 
         // Cargar meses en el spinner
@@ -118,6 +118,7 @@ public class ControladorReporteServicio extends AppCompatActivity{
         Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();*/
     }
 }
+
 
 
 
