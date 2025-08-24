@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ReporteServicioAdapter extends BaseAdapter {
+public class ControladorReporteServicioAdapter extends BaseAdapter {
     private Context context;
     private List<Map.Entry<String, Double>> datos;
 
