@@ -436,6 +436,60 @@ public class MainActivity extends AppCompatActivity {
         Map<String, Double> reporte = new HashMap<>();
         try {
             List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
+            if (ordenes == null || ordenes.isEmpty()) {
+                Log.w(TAG, "No existen órdenes registradas.");
+                return reporte;
+            }
+            for (OrdenServicio orden : ordenes) {
+                try {
+                    // Validar que la fecha no sea nula ni vacía
+                    if (orden.getFecha() == null || orden.getFecha().trim().isEmpty()) {
+                        Log.e(TAG, "Orden con fecha nula/vacía: " + orden);
+                        continue; // saltar esta orden
+                    }
+                    // Parsear la fecha
+                    LocalDate fecha = LocalDate.parse(
+                            orden.getFecha().trim(),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    );
+                    // Verificar año y mes
+                    if (fecha.getYear() == anio && fecha.getMonthValue() == mes) {
+                        if (orden.getDetalles() == null) {
+                            Log.e(TAG, "Orden sin detalles: " + orden);
+                            continue;
+                        }
+                        for (DetalledelServicio detalle : orden.getDetalles()) {
+                            if (detalle.getServicio() == null) {
+                                Log.e(TAG, "Detalle sin servicio en orden: " + orden);
+                                continue;
+                            }
+                            String nombreServicio = detalle.getServicio().getNombre();
+                            double subtotal = detalle.getSubtotal();
+                            reporte.put(
+                                nombreServicio,
+                                reporte.getOrDefault(nombreServicio, 0.0) + subtotal
+                            );
+                        }
+                    }
+                } catch (Exception eFecha) {
+                    Log.e(TAG, "Error procesando orden con fecha: " + orden.getFecha(), eFecha);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error generando reporte mensual: " + e.getMessage(), e);
+        }
+        if (reporte.isEmpty()) {
+            Log.w(TAG, "No se generaron datos para " + mes + "/" + anio);
+        } else {
+            Log.i(TAG, "Reporte generado con " + reporte.size() + " servicios.");
+        }
+        return reporte;
+    }
+
+    /*public static Map<String, Double> generarReporteMensualServicios(int anio, int mes) {
+        Map<String, Double> reporte = new HashMap<>();
+        try {
+            List<OrdenServicio> ordenes = obtenerTodasLasOrdenes();
             for (OrdenServicio orden : ordenes) {
                 // convertir la fecha String a LocalDate
                 LocalDate fecha = LocalDate.parse(orden.getFecha(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -452,7 +506,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Error generando reporte mensual: " + e.getMessage(), e);
         }
         return reporte;
-    }
+    }*/
 
     public static Map<String, Double> generarReporteMensualTecnicos(int anio, int mes) {
         Map<String, Double> reporte = new HashMap<>();
