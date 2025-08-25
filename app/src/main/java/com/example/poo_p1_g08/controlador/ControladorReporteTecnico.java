@@ -76,8 +76,7 @@ public class ControladorReporteTecnico extends AppCompatActivity {
             }
 
             int mes1a12 = indiceMes + 1;
-            // Método que genera el reporte
-            generarReporteTecnicos(anio, mes1a12);
+            generarReporteTecnicos(anio, mes1a12); // Método que genera el reporte
         });
 
         // Botón regresar al menú principal
@@ -93,7 +92,7 @@ public class ControladorReporteTecnico extends AppCompatActivity {
             Toast.makeText(this, "No hay datos para " + mes1a12 + "/" + anio, Toast.LENGTH_SHORT).show();
             return;
         }
-        // Creación de la tabla con formato tecnico / total recaudado
+        // Tabla formato (fila: técnico | total recaudado USD)
         ControladorReporteTecnicoAdapter adapter = new ControladorReporteTecnicoAdapter(this, datos);
         listaTecnicos.setAdapter(adapter);
 
@@ -170,6 +169,7 @@ public class ControladorReporteTecnico extends AppCompatActivity {
         return ordenes;
     }
 }
+
 
 
 
