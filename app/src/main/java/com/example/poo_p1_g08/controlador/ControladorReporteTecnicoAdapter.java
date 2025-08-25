@@ -1,3 +1,6 @@
+// Esta clase funciona como un puente entre los datos y la interfaz gráfica: toma la información de una fuente (listas, arreglos, objetos) 
+// y la transforma en vista, mostrando el ListView. Su papel principal es decidir qué datos se muestran y 
+// cómo se ven en pantalla, además de optimizar el rendimiento reutilizando vistas en lugar de crearlas desde cero.
 package com.example.poo_p1_g08.controlador;
 
 import android.content.Context;
@@ -37,6 +40,7 @@ public class ControladorReporteTecnicoAdapter extends BaseAdapter {
         return position;
     }
 
+    // Método que personaliza cada fila o elemento de la lista, conectando los datos con su representación visual.
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
