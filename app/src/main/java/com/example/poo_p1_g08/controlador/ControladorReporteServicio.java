@@ -50,7 +50,7 @@ public class ControladorReporteServicio extends AppCompatActivity{
                 "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
         spinnerMes.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, meses));
         
-        // Consultar
+        // Consultar al usuario el año y mes
         btnConsultar.setOnClickListener(v -> {
             String anioTxt = inputAnio.getText().toString().trim();
             int indiceMes = spinnerMes.getSelectedItemPosition();
@@ -78,10 +78,10 @@ public class ControladorReporteServicio extends AppCompatActivity{
             }
 
             int mes1a12 = indiceMes + 1; // convertir 0..11 -> 1..12
-            generarReporteServicio(anio, mes1a12);
+            generarReporteServicio(anio, mes1a12); // método que genera el reporte
         });
 
-        // Regresar
+        // Regresar al menú principal
         btnRegresar.setOnClickListener(v -> finish());
     }
 
@@ -201,6 +201,7 @@ public class ControladorReporteServicio extends AppCompatActivity{
         Toast.makeText(this, "Reporte generado para " + meses[mes] + " " + anio, Toast.LENGTH_SHORT).show();*/
     }
 }
+
 
 
 
