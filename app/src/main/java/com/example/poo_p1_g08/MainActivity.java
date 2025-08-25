@@ -433,6 +433,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // ==================== Reporte de Ingresos por Servicios ====================
+    
     public Map<String, Double> generarReporteMensualServicios(int anio, int mes) {
         Map<String, Double> reporte = new HashMap<>();
         try {
@@ -486,6 +488,9 @@ public class MainActivity extends AppCompatActivity {
         }
         return reporte;
     }
+
+    // ==================== Reporte de Atenciones por Técnico ====================
+    
     public Map<String, Double> generarReporteMensualTecnicos(int anio, int mes) {
         Map<String, Double> reporte = new HashMap<>();
         try {
